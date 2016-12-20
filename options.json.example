@@ -1,0 +1,8 @@
+{
+  "sqlserver": "localhost",
+  "sqluser": "user",
+  "sqlpass": "pass",
+  "sqldb": "cve",
+
+  "githubtoken": "github_token_here"
+}

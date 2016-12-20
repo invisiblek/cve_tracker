@@ -1,0 +1,76 @@
+body {
+  background-image: url("/img/cm13-wallpaper-001.jpg");
+  font-family: "Monospace";
+  color: white;
+}
+
+div.frame {
+  background-color: rgba(40, 40, 40, 0.5);
+  padding: 20px;
+  display: table;
+}
+
+div.repo {
+  display: inline-block;
+  padding-bottom: 2px;
+  color: rgba(255, 255, 255, 1);
+  min-width: 300px;
+}
+
+div.cve {
+  display: inline-block;
+}
+
+th.rotate {
+  height: 140px;
+  white-space: nowrap;
+}
+
+th.rotate > div{
+  transform:
+    translate(25px, 51px)
+    rotate(315deg);
+  width: 30px;
+}
+
+th.rotate > div > span{
+  border-bottom: 1px solid #ccc;
+  padding: 2px 5px;
+}
+
+td {
+  border-right: 1px solid #ccc;
+}
+
+a {
+  color: white;
+}
+
+p {
+  -webkit-margin-before: 0px;
+  -webkit-margin-after: 0px;
+}
+
+span.cve {
+  padding-right: 10px;
+}
+
+.status_1 {
+  color: red;
+}
+
+.status_2 {
+  color: green;
+}
+
+.status_3 {
+  color: yellow;
+}
+
+.status_4 {
+  color: blue;
+}
+
+.status_5 {
+  color: green;
+}

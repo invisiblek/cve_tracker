@@ -1,0 +1,21 @@
+{
+  "name": "cve",
+  "version": "0.0.1",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "github": "^7.1.0",
+    "mysql": "^2.12.0",
+    "pug": "^2.0.0-beta6",
+    "sleep": "^5.0.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "invisiblek",
+  "license": "ISC"
+}

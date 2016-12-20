@@ -1,0 +1,17 @@
+doctype html
+link(href='/css/style.css', rel='stylesheet')
+script(src='js/cve.js')
+script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js')
+html(lang="en")
+  head
+    title= "LineageOS CVE Checklist for " + kernel.repo
+  body
+    div.frame
+      h3= kernel.repo
+      - for (var i = 0; i < cves.length; i++)
+        p
+          span.cve
+            a(href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=" + cves[i].cve)= cves[i].cve
+          - var j = statuses.findIndex((st) => st.cve_id === parseInt(cves[i].id));
+          - var s = j > -1 ? statuses[j].status_id : 1;
+          span(onclick="update(this);" status_id=s kernel_id=kernel.id cve_id=cves[i].id class="status_" + s)= statusIDs[statusIDs.findIndex((st) => st.id === s)].status

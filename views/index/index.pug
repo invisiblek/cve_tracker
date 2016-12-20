@@ -1,0 +1,10 @@
+doctype html
+link(href='/css/style.css', rel='stylesheet')
+html(lang="en")
+  head
+    title= "LineageOS CVE Checklist"
+  body
+    div.frame
+      - for (var i = 0; i < kernels.length; i++)
+        p
+          a(href="/?k=" + kernels[i].repo)= kernels[i].repo
