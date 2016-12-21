@@ -8,9 +8,10 @@
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "github": "^7.1.0",
-    "mysql": "^2.12.0",
     "pug": "^2.0.0-beta6",
-    "sleep": "^5.0.0"
+    "sleep": "^5.0.0",
+    "sqlite": "^2.2.4",
+    "sqlite3": "^3.1.8"
   },
   "devDependencies": {},
   "scripts": {

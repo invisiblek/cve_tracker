@@ -1,5 +1,11 @@
+var forceDBUpdate = false;
+
 var fs = require('fs');
 var options = JSON.parse(fs.readFileSync('options.json', 'utf8'));
+var database = "sqlite.db";
+var newdb = !fs.existsSync(database);
+var sqlite3 = require("sqlite3").verbose();
+var db = new sqlite3.Database(database);
 
 var express = require('express');
 var app = express();
@@ -13,17 +19,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var GitHubApi = require("github");
 var github = new GitHubApi();
 
-var sleep = require('sleep');
-
-var mysql = require('mysql');
-var connection = mysql.createConnection({
-  host     : options.sqlserver,
-  user     : options.sqluser,
-  password : options.sqlpass,
-  database : options.sqldb
-});
-connection.connect();
-
 github.authenticate({
   type: "oauth",
   token: options.githubtoken,
@@ -34,12 +29,15 @@ var ghKernels = new Array();
 var allCVEs = new Array();
 
 function checkUpdateDB() {
-  connection.query('SELECT last_update FROM `config`', function(err, results) {
-    next_update = new Date(results[0].last_update);
-    next_update.setDate(next_update.getDate() + 1);
-    if (next_update < new Date()) {
-      updateDB();
-    }
+  db.serialize(function() {
+    db.all('SELECT last_update FROM config;', function(err, results) {
+      next_update = new Date(results[0].last_update);
+      next_update.setDate(next_update.getDate() + 1);
+      if (next_update < new Date() || forceDBUpdate) {
+        updateDB();
+        forceDBUpdate = false;
+      }
+    });
   });
 }
 
@@ -53,18 +51,26 @@ function updateDB() {
   }
 
   if (untrackedKernels.length > 0) {
-    connection.query("INSERT INTO `kernel` (repo) VALUES ?", [untrackedKernels], function(err) {
-      getKernelsFromDB();
+    db.serialize(function() {
+      var stmt = db.prepare("INSERT INTO kernel (id, repo) VALUES (NULL, ?)");
+      for (var i = 0; i < untrackedKernels.length; i++) {
+        stmt.run(untrackedKernels[i]);
+      }
+      stmt.finalize();
     });
+
+    getKernelsFromDB();
   }
 }
 
 function getKernelsFromDB() {
   dbKernels = [];
-  connection.query('SELECT * FROM `kernel`', function(err, results) {
-    dbKernels = results;
-    dbKernels.sort(function(a,b) {return (a.repo > b.repo) ? 1 : ((b.repo > a.repo) ? -1 : 0);});
-    checkUpdateDB();
+  db.serialize(function() {
+    db.all('SELECT * FROM kernel', function(err, results) {
+      dbKernels = results;
+      dbKernels.sort(function(a,b) {return (a.repo > b.repo) ? 1 : ((b.repo > a.repo) ? -1 : 0);});
+      checkUpdateDB();
+    });
   });
 }
 
@@ -85,6 +91,8 @@ function getKernelsFromGithub() {
       github.getNextPage(ret, getRepos);
     } else {
       process.stdout.write("Done!\n");
+      getStatusIDs();
+      getCVEs();
       getKernelsFromDB();
     }
   }
@@ -92,25 +100,31 @@ function getKernelsFromGithub() {
 
 function getStatusIDs() {
   statusIDs = [];
-  connection.query('SELECT * FROM `status`', function(err, results) {
-    statusIDs = results;
-    statusIDs.sort(function(a,b) {return (a.id > b.id) ? 1 : ((b.id > a.id) ? -1 : 0);});
+  db.serialize(function() {
+    db.all('SELECT * FROM status;', function(err, results) {
+      statusIDs = results;
+      statusIDs.sort(function(a,b) {return (a.id > b.id) ? 1 : ((b.id > a.id) ? -1 : 0);});
+    });
   });
 }
 
 function getCVEs() {
   allCVEs = [];
-  connection.query('SELECT * FROM `cve`', function(err, results) {
-    allCVEs = results;
-    allCVEs.sort(function(a,b) {return (a.cve > b.cve) ? 1 : ((b.cve > a.cve) ? -1 : 0);});
+  db.serialize(function() {
+    db.all('SELECT * FROM cve;', function(err, results) {
+      allCVEs = results;
+      allCVEs.sort(function(a,b) {return (a.cve > b.cve) ? 1 : ((b.cve > a.cve) ? -1 : 0);});
+    });
   });
 }
 
 function getStatuesForKernel(res, kernel) {
-  statues = new Array();
-  connection.query('SELECT * FROM `patches` WHERE `kernel_id` = "' + kernel.id + '"', function(err, results) {
-    statuses = results;
-    res.render("kernel", { kernel: kernel, cves: allCVEs, statuses: statuses, statusIDs: statusIDs });
+  statuses = new Array();
+  db.serialize(function() {
+    db.all('SELECT * FROM patches WHERE kernel_id = "' + kernel.id + '"', function(err, results) {
+      statuses = results;
+      res.render("kernel", { kernel: kernel, cves: allCVEs, statuses: statuses, statusIDs: statusIDs });
+    });
   });
 }
 
@@ -121,19 +135,19 @@ app.post('/update', function(req, res) {
 
   if (req.body.kernel && req.body.newStatus && req.body.cve) {
     if (s > 0 && s < 6) {
-      connection.query('SELECT * FROM `patches` WHERE `kernel_id` = ' + k + ' AND `cve_id` = ' + c, function(err, results) {
+      db.all('SELECT * FROM patches WHERE kernel_id = ' + k + ' AND cve_id = ' + c, function(err, results) {
         if (!err) {
           if (results.length == 0) {
             // TODO: add a check to make sure the kernel_id and cve_id exist before just shoving a new record in
-            connection.query('INSERT into `patches` (`kernel_id`, `cve_id`, `status_id`) VALUES (' + k + ', ' + c + ', ' + s + ')', function(err, results) {})
+            db.run('INSERT into patches (id, kernel_id, cve_id, status_id) VALUES (NULL, ' + k + ', ' + c + ', ' + s + ')', function(err, results) {})
           } else if (results.length == 1) {
-            connection.query('UPDATE `patches` SET `status_id` = ' + s + ' WHERE `kernel_id` = ' + k + ' AND `cve_id` = ' + c, function(err, results){})
+            db.run('UPDATE patches SET status_id = ' + s + ' WHERE kernel_id = ' + k + ' AND cve_id = ' + c, function(err, results){})
           } else {
             // Somehow if it got more than one record, clean this shit up. Probably can't happen but let's be sure
-            connection.query('DELETE from `patches` WHERE `kernel_id` = "' + k + '" AND `cve_id` = "' + c + '"', function(err, results) {})
-            connection.query('INSERT into `patches` (`kernel_id`, `cve_id`, `status_id`) VALUES (' + k + ', ' + c + ', ' + s + ')', function(err, results) {})
+            db.run('DELETE from patches WHERE kernel_id = "' + k + '" AND cve_id = "' + c + '"', function(err, results) {})
+            db.run('INSERT into patches (id, kernel_id, cve_id, status_id) VALUES (NULL, ' + k + ', ' + c + ', ' + s + ')', function(err, results) {})
           }
-          connection.query('SELECT * from `status` WHERE id=' + s, function(err, results) {
+          db.all('SELECT * from status WHERE id=' + s, function(err, results) {
             var status = results[0].status;
             res.type('json');
             res.json({ kernel_id: k, cve_id: c, status_id: s, status: status });
@@ -161,8 +175,34 @@ app.get('/', function(req, res) {
 })
 
 app.listen(3000, function () {
+  if (newdb) {
+    process.stdout.write("Creating new database...")
+    // Create tables
+    db.serialize(function() {
+      db.run("CREATE TABLE config (last_update DATETIME);");
+      db.run("CREATE TABLE cve (id INTEGER PRIMARY KEY, cve TEXT);");
+      db.run("CREATE TABLE status (id INTEGER PRIMARY KEY, status TEXT);");
+      db.run("CREATE TABLE kernel (id INTEGER PRIMARY KEY, repo TEXT);");
+      db.run("CREATE TABLE patches (id INTEGER PRIMARY KEY, kernel_id INTEGER, cve_id INTEGER, status_id INTEGER);");
+    });
+
+    // Insert data
+    db.serialize(function() {
+      db.run("INSERT INTO config (last_update) VALUES ('" + new Date() + "')");
+
+      require('readline').createInterface({ input: require('fs').createReadStream('cves.txt') })
+          .on('line', function (line) { db.run("INSERT INTO cve (id, cve) VALUES (NULL, '" + line + "')"); });
+
+      require('readline').createInterface({ input: require('fs').createReadStream('statuses.txt') })
+          .on('line', function (line) { db.run("INSERT INTO status (id, status) VALUES (" + line.split('|')[0] + ",'" + line.split('|')[1] + "')"); });
+    });
+
+    process.stdout.write("Done!\n")
+    forceDBUpdate = true;
+  }
+
+  getKernelsFromGithub();
   getStatusIDs();
   getCVEs();
-  getKernelsFromGithub();
-  setTimeout(function(){ getKernelsFromGithub() }, 14400000); // Check github for new repos every 4 hours
+  setInterval(function(){ getKernelsFromGithub() }, 14400000); // Check github for new repos every 4 hours
 })

@@ -1,4 +1,3 @@
-- cve.sql can be used to create an initial database
 - Copy options.json.example and modify to your needs. You will need a github oauth token or their
   api will cut you off after a few requests.
 - once you're set up, run: node app.js    to start the service. it listens on port 3000

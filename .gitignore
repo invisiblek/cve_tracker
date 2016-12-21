@@ -3,3 +3,4 @@
 options.json
 node_modules
 npm-debug.log
+sqlite.db
