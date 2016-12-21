@@ -12,7 +12,8 @@ html(lang="en")
     title= "LineageOS CVE Checklist for " + kernel.repo
   body
     div.frame
-      h3= kernel.repo
+      h3
+        a(href="https://github.com/LineageOS/" + kernel.repo)= kernel.repo
       #progressbar(value=(patched/cves.length) * 100)
       - for (var i = 0; i < cves.length; i++)
         p
