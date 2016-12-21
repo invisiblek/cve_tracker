@@ -119,11 +119,15 @@ function getCVEs() {
 }
 
 function getStatuesForKernel(res, kernel) {
+  var patched = 0;
   statuses = new Array();
   db.serialize(function() {
+    db.all('SELECT count(*) as c FROM patches WHERE status_id = ' + 2, function(err, results) {
+      patched = parseInt(results[0].c);
+    });
     db.all('SELECT * FROM patches WHERE kernel_id = "' + kernel.id + '"', function(err, results) {
       statuses = results;
-      res.render("kernel", { kernel: kernel, cves: allCVEs, statuses: statuses, statusIDs: statusIDs });
+      res.render("kernel", { kernel: kernel, cves: allCVEs, statuses: statuses, statusIDs: statusIDs, patched: patched });
     });
   });
 }
@@ -147,10 +151,14 @@ app.post('/update', function(req, res) {
             db.run('DELETE from patches WHERE kernel_id = "' + k + '" AND cve_id = "' + c + '"', function(err, results) {})
             db.run('INSERT into patches (id, kernel_id, cve_id, status_id) VALUES (NULL, ' + k + ', ' + c + ', ' + s + ')', function(err, results) {})
           }
-          db.all('SELECT * from status WHERE id=' + s, function(err, results) {
+          var patched = 0;
+          db.all('SELECT count(*) as c FROM patches WHERE status_id = ' + 2, function(err, results) {
+            patched = parseInt(results[0].c);
+          });
+          db.all('SELECT * FROM status WHERE id=' + s, function(err, results) {
             var status = results[0].status;
             res.type('json');
-            res.json({ kernel_id: k, cve_id: c, status_id: s, status: status });
+            res.json({ kernel_id: k, cve_id: c, status_id: s, status: status, patched: patched});
           })
         } else {
           res.send({ error: "Failed" });
@@ -199,10 +207,12 @@ app.listen(3000, function () {
 
     process.stdout.write("Done!\n")
     forceDBUpdate = true;
+    getKernelsFromGithub();
+  } else {
+    getStatusIDs();
+    getCVEs();
+    getKernelsFromDB();
   }
 
-  getKernelsFromGithub();
-  getStatusIDs();
-  getCVEs();
   setInterval(function(){ getKernelsFromGithub() }, 14400000); // Check github for new repos every 4 hours
 })

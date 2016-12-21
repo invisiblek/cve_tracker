@@ -16,6 +16,18 @@ function update(c) {
       $(c).addClass("status_" + data.status_id);
       $(c).attr('status_id', data.status_id);
       $(c).html(data.status);
+      $("#progressbar").attr("value", data.patched);
+      updateProgressBar();
     }
   });
 }
+
+function updateProgressBar() {
+  $("#progressbar").progressbar({
+    value: parseInt($("#progressbar").attr("value")),
+  });
+}
+
+$(document).ready(function() {
+  updateProgressBar();
+});

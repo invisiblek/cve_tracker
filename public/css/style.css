@@ -8,6 +8,7 @@ div.frame {
   background-color: rgba(40, 40, 40, 0.5);
   padding: 20px;
   display: table;
+  width: 400px;
 }
 
 div.repo {
@@ -73,4 +74,13 @@ span.cve {
 
 .status_5 {
   color: green;
+}
+
+#progressbar {
+  height: 20px;
+  margin-bottom: 10px;
+}
+
+.ui-progressbar-value {
+  background: #88ff88 !important;
 }
