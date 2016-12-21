@@ -1,4 +1,5 @@
 var forceDBUpdate = false;
+var quickGithub = false;  // flag to only grab one page from github, for testing purposes only
 
 var fs = require('fs');
 var options = JSON.parse(fs.readFileSync('options.json', 'utf8'));
@@ -6,7 +7,7 @@ var database = "sqlite.db";
 var newdb = !fs.existsSync(database);
 var sqlite3 = require("sqlite3").verbose();
 var db = new sqlite3.Database(database);
-var db_version = 1;
+var db_version = 2;
 
 var express = require('express');
 var app = express();
@@ -29,33 +30,33 @@ var dbKernels = new Array();
 var ghKernels = new Array();
 var allCVEs = new Array();
 
-function checkUpdateDB() {
+function checkRefreshDB() {
   db.serialize(function() {
     db.all('SELECT last_update FROM config;', function(err, results) {
       next_update = new Date(results[0].last_update);
       next_update.setDate(next_update.getDate() + 1);
       if (next_update < new Date() || forceDBUpdate) {
-        updateDB();
+        refreshDB();
         forceDBUpdate = false;
       }
     });
   });
 }
 
-function updateDB() {
+function refreshDB() {
   untrackedKernels = [];
 
   for (var i = 0; i < ghKernels.length; i++) {
-    if (dbKernels.findIndex((k) => k.repo === ghKernels[i]) < 0) {
-      untrackedKernels.push([ghKernels[i]]);
+    if (dbKernels.findIndex((k) => k.repo === ghKernels[i].repo) < 0) {
+      untrackedKernels.push(ghKernels[i]);
     }
   }
 
   if (untrackedKernels.length > 0) {
     db.serialize(function() {
-      var stmt = db.prepare("INSERT INTO kernel (id, repo) VALUES (NULL, ?)");
+      var stmt = db.prepare("INSERT INTO kernel (id, repo, last_github_update) VALUES (NULL, ?, ?)");
       for (var i = 0; i < untrackedKernels.length; i++) {
-        stmt.run(untrackedKernels[i]);
+        stmt.run(untrackedKernels[i].repo, untrackedKernels[i].updated_at);
       }
       stmt.finalize();
     });
@@ -66,11 +67,17 @@ function updateDB() {
 
 function getKernelsFromDB() {
   dbKernels = [];
+  now = new Date();
+  cutoffDate = new Date(new Date(now).setMonth(now.getMonth() - 6));
   db.serialize(function() {
     db.all('SELECT * FROM kernel', function(err, results) {
-      dbKernels = results;
+      for (var i = 0; i < results.length; i++) {
+        if (new Date(results[i].last_github_update) > cutoffDate) {
+          dbKernels.push(results[i]);
+        }
+      }
       dbKernels.sort(function(a,b) {return (a.repo > b.repo) ? 1 : ((b.repo > a.repo) ? -1 : 0);});
-      checkUpdateDB();
+      checkRefreshDB();
     });
   });
 }
@@ -84,11 +91,11 @@ function getKernelsFromGithub() {
     for (var i = 0; i < ret.length; i++) {
       repo = ret[i];
       if (repo.name.indexOf("android_kernel_") == 0) {
-        ghKernels.push(repo.name);
+        ghKernels.push({repo: repo.name, updated_at: repo.updated_at});
       }
     }
 
-    if (github.hasNextPage(ret)) {
+    if (github.hasNextPage(ret) && !quickGithub) {
       github.getNextPage(ret, getRepos);
     } else {
       process.stdout.write("Done!\n");
@@ -144,13 +151,13 @@ app.post('/update', function(req, res) {
         if (!err) {
           if (results.length == 0) {
             // TODO: add a check to make sure the kernel_id and cve_id exist before just shoving a new record in
-            db.run('INSERT into patches (id, kernel_id, cve_id, status_id) VALUES (NULL, ' + k + ', ' + c + ', ' + s + ')', function(err, results) {})
+            db.run('INSERT into patches (id, kernel_id, cve_id, status_id) VALUES (NULL, ' + k + ', ' + c + ', ' + s + ')')
           } else if (results.length == 1) {
-            db.run('UPDATE patches SET status_id = ' + s + ' WHERE kernel_id = ' + k + ' AND cve_id = ' + c, function(err, results){})
+            db.run('UPDATE patches SET status_id = ' + s + ' WHERE kernel_id = ' + k + ' AND cve_id = ' + c)
           } else {
             // Somehow if it got more than one record, clean this shit up. Probably can't happen but let's be sure
-            db.run('DELETE from patches WHERE kernel_id = "' + k + '" AND cve_id = "' + c + '"', function(err, results) {})
-            db.run('INSERT into patches (id, kernel_id, cve_id, status_id) VALUES (NULL, ' + k + ', ' + c + ', ' + s + ')', function(err, results) {})
+            db.run('DELETE from patches WHERE kernel_id = "' + k + '" AND cve_id = "' + c + '"')
+            db.run('INSERT into patches (id, kernel_id, cve_id, status_id) VALUES (NULL, ' + k + ', ' + c + ', ' + s + ')')
           }
           var patched = 0;
           db.all('SELECT count(*) as c FROM patches WHERE kernel_id = ' + k + ' AND status_id = ' + 2, function(err, results) {
@@ -171,28 +178,42 @@ app.post('/update', function(req, res) {
 
 function createDB() {
   process.stdout.write("Creating new database...")
-  // Create tables
+
   db.serialize(function() {
+    // Create tables
     db.run("CREATE TABLE config (last_update DATETIME, db_version INTEGER);");
     db.run("CREATE TABLE cve (id INTEGER PRIMARY KEY, cve TEXT);");
     db.run("CREATE TABLE status (id INTEGER PRIMARY KEY, status TEXT);");
     db.run("CREATE TABLE kernel (id INTEGER PRIMARY KEY, repo TEXT);");
     db.run("CREATE TABLE patches (id INTEGER PRIMARY KEY, kernel_id INTEGER, cve_id INTEGER, status_id INTEGER);");
-  });
 
-  // Insert data
-  db.serialize(function() {
-    db.run("INSERT INTO config (last_update, db_version) VALUES ('" + new Date() + "', " + db_version + ")");
-
+    // Insert data
+    db.run("INSERT INTO config (last_update, db_version) VALUES ('" + new Date() + "', 1)");
     require('readline').createInterface({ input: require('fs').createReadStream('cves.txt') })
         .on('line', function (line) { db.run("INSERT INTO cve (id, cve) VALUES (NULL, '" + line + "')"); });
-
     require('readline').createInterface({ input: require('fs').createReadStream('statuses.txt') })
         .on('line', function (line) { db.run("INSERT INTO status (id, status) VALUES (" + line.split('|')[0] + ",'" + line.split('|')[1] + "')"); });
+    updateDB();
+    getKernelsFromGithub();
   });
 
   process.stdout.write("Done!\n")
-  getKernelsFromGithub();
+}
+
+function updateDB() {
+  db.serialize(function() {
+    db.all('SELECT db_version FROM config;', function(err, results) {
+      version = results[0].db_version;
+
+      if (version < db_version) {
+        switch(version) {
+          case 1:
+            db.run("ALTER TABLE kernel ADD last_github_update DATETIME");
+            db.run("UPDATE config set db_version=" + db_version);
+        }
+      }
+    });
+  });
 }
 
 app.get('/', function(req, res) {
@@ -213,6 +234,7 @@ app.listen(3000, function () {
     forceDBUpdate = true;
     createDB();
   } else {
+    updateDB();
     getStatusIDs();
     getCVEs();
     getKernelsFromDB();
