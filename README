@@ -1,3 +1,5 @@
 - cve.sql can be used to create an initial database
+- Copy options.json.example and modify to your needs. You will need a github oauth token or their
+  api will cut you off after a few requests.
 
 I'm sure there's a lot more needed here as far as a readme. This is a WIP, cat's will be eaten.
