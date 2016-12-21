@@ -122,7 +122,7 @@ function getStatuesForKernel(res, kernel) {
   var patched = 0;
   statuses = new Array();
   db.serialize(function() {
-    db.all('SELECT count(*) as c FROM patches WHERE status_id = ' + 2, function(err, results) {
+    db.all('SELECT count(*) as c FROM patches WHERE kernel_id = "' + kernel.id + '" AND status_id = ' + 2, function(err, results) {
       patched = parseInt(results[0].c);
     });
     db.all('SELECT * FROM patches WHERE kernel_id = "' + kernel.id + '"', function(err, results) {
@@ -152,7 +152,7 @@ app.post('/update', function(req, res) {
             db.run('INSERT into patches (id, kernel_id, cve_id, status_id) VALUES (NULL, ' + k + ', ' + c + ', ' + s + ')', function(err, results) {})
           }
           var patched = 0;
-          db.all('SELECT count(*) as c FROM patches WHERE status_id = ' + 2, function(err, results) {
+          db.all('SELECT count(*) as c FROM patches WHERE kernel_id = ' + k + ' AND status_id = ' + 2, function(err, results) {
             patched = parseInt(results[0].c);
           });
           db.all('SELECT * FROM status WHERE id=' + s, function(err, results) {
