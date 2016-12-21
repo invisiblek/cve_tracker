@@ -3,4 +3,4 @@
   api will cut you off after a few requests.
 - once you're set up, run: node app.js    to start the service. it listens on port 3000
 
-I'm sure there's a lot more needed here as far as a readme. This is a WIP, cat's will be eaten.
+I'm sure there's a lot more needed here as far as a readme. This is a WIP, cats will be eaten.
