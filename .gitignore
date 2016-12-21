@@ -3,4 +3,5 @@
 options.json
 node_modules
 npm-debug.log
+nohup.out
 sqlite.db
