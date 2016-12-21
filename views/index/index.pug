@@ -1,10 +1,22 @@
 doctype html
+
+link(href='/css/normalize.css', rel='stylesheet')
+link(href='/css/skeleton.css', rel='stylesheet')
+
 link(href='/css/style.css', rel='stylesheet')
 html(lang="en")
   head
     title= "LineageOS CVE Checklist"
   body
-    div.frame
-      - for (var i = 0; i < kernels.length; i++)
-        p
-          a(href="/?k=" + kernels[i].repo)= kernels[i].repo
+    div.frame.container
+      - for (var j = 0; j < kernels.length; j += Math.ceil(kernels.length/3))
+        - var last_vendor = "";
+        div.four.columns
+          - for (var i = j; i < kernels.length && i < j + Math.ceil(kernels.length/3); i++)
+              - var vendor = kernels[i].repo.split("_").slice(-2)[0];
+              if last_vendor != vendor
+                div.header= vendor
+                - last_vendor = vendor
+              div.kernelrow
+                a(href="/?k=" + kernels[i].repo).device= kernels[i].repo.split("_").slice(-1)
+                br

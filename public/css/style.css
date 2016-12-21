@@ -128,3 +128,21 @@ span.cve {
 .ui-progressbar-value {
   background: #88ff88 !important;
 }
+
+.vendor {
+  float: left;
+  text-align: left;
+  min-width: 100px;
+}
+
+a.device {
+  float: left;
+}
+
+div.header {
+    text-align: left;
+    font-size: 1.2em;
+    display: block;
+    font-weight: bold;
+    color: #00BCD4;
+}

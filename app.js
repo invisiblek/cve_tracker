@@ -173,13 +173,12 @@ app.get('/', function(req, res) {
     if (dbKernels.findIndex((k) => k.repo === req.query.k) > -1) {
       kernel = dbKernels[dbKernels.findIndex((k) => k.repo === req.query.k)];
       getStatuesForKernel(res, kernel);
+      return;
     } else {
       console.log("Invalid kernel specified. Sending to index...");
-      res.render("index", { kernels: dbKernels, cves: allCVEs });
     }
-  } else {
-    res.render("index", { kernels: dbKernels, cves: allCVEs });
   }
+  res.render("index", { kernels: dbKernels, cves: allCVEs });
 })
 
 app.listen(3000, function () {
