@@ -1,6 +1,6 @@
 CREATE TABLE config (last_update DATETIME, db_version INTEGER);
 CREATE TABLE cve (id INTEGER PRIMARY KEY, cve TEXT);
 CREATE TABLE status (id INTEGER PRIMARY KEY, status TEXT);
-CREATE TABLE kernel (id INTEGER PRIMARY KEY, repo TEXT);
+CREATE TABLE kernel (id INTEGER PRIMARY KEY, repo TEXT, last_github_update DATETIME);
 CREATE TABLE patches (id INTEGER PRIMARY KEY, kernel_id INTEGER, cve_id INTEGER, status_id INTEGER);
 /* No STAT tables available */
