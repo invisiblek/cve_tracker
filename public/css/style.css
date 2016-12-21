@@ -1,14 +1,16 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto');
+
 body {
   background-image: url("/img/cm13-wallpaper-001.jpg");
-  font-family: "Monospace";
+  font-family: "Roboto", sans-serif;
   color: white;
 }
 
 div.frame {
   background-color: rgba(40, 40, 40, 0.5);
   padding: 20px;
-  display: table;
-  width: 400px;
+  float: center;
+  text-align: center;
 }
 
 div.repo {
@@ -18,7 +20,7 @@ div.repo {
   min-width: 300px;
 }
 
-div.cve {
+div.cve-row {
   display: inline-block;
 }
 
@@ -45,35 +47,77 @@ td {
 
 a {
   color: white;
+  text-decoration: none;
+  -webkit-transition: all 200ms ease;
+	transition: all 200ms ease;
 }
 
-p {
-  -webkit-margin-before: 0px;
-  -webkit-margin-after: 0px;
+div.row {
+  height: 1.5em;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 span.cve {
+  float: left;
   padding-right: 10px;
 }
 
-.status_1 {
-  color: red;
+.status {
+  cursor: pointer;
+	-webkit-transition: all 200ms ease;
+	transition: all 200ms ease;
 }
 
+
+
+/* Red 500 */
+.status_1 {
+  color: #F44336;
+}
+
+/* Red A700 */
+.status_1:hover {
+  color: #D50000;
+}
+
+/* Light green A400 */
 .status_2 {
-  color: green;
+  color: #76FF03;
+}
+
+/* Light green A700 */
+.status_2:hover {
+  color: #64DD17;
 }
 
 .status_3 {
   color: yellow;
 }
 
-.status_4 {
-  color: blue;
+/* Yellow A700 */
+.status_3:hover {
+  color: #FFD600;
 }
 
+/* Blue 500 */
+.status_4 {
+  color: #2196F3;
+}
+
+/* Blue A700 */
+.status_4:hover {
+  color: #2962FF;
+}
+
+/* Green A400 */
 .status_5 {
-  color: green;
+  color: #00E676;
+}
+
+/* Green A700 */
+.status_5:hover {
+  color: #00C853;
 }
 
 #progressbar {
