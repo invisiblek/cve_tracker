@@ -6,6 +6,7 @@ var database = "sqlite.db";
 var newdb = !fs.existsSync(database);
 var sqlite3 = require("sqlite3").verbose();
 var db = new sqlite3.Database(database);
+var db_version = 1;
 
 var express = require('express');
 var app = express();
@@ -168,6 +169,32 @@ app.post('/update', function(req, res) {
   }
 })
 
+function createDB() {
+  process.stdout.write("Creating new database...")
+  // Create tables
+  db.serialize(function() {
+    db.run("CREATE TABLE config (last_update DATETIME, db_version INTEGER);");
+    db.run("CREATE TABLE cve (id INTEGER PRIMARY KEY, cve TEXT);");
+    db.run("CREATE TABLE status (id INTEGER PRIMARY KEY, status TEXT);");
+    db.run("CREATE TABLE kernel (id INTEGER PRIMARY KEY, repo TEXT);");
+    db.run("CREATE TABLE patches (id INTEGER PRIMARY KEY, kernel_id INTEGER, cve_id INTEGER, status_id INTEGER);");
+  });
+
+  // Insert data
+  db.serialize(function() {
+    db.run("INSERT INTO config (last_update, db_version) VALUES ('" + new Date() + "', " + db_version + ")");
+
+    require('readline').createInterface({ input: require('fs').createReadStream('cves.txt') })
+        .on('line', function (line) { db.run("INSERT INTO cve (id, cve) VALUES (NULL, '" + line + "')"); });
+
+    require('readline').createInterface({ input: require('fs').createReadStream('statuses.txt') })
+        .on('line', function (line) { db.run("INSERT INTO status (id, status) VALUES (" + line.split('|')[0] + ",'" + line.split('|')[1] + "')"); });
+  });
+
+  process.stdout.write("Done!\n")
+  getKernelsFromGithub();
+}
+
 app.get('/', function(req, res) {
   if (req.query.k) {
     if (dbKernels.findIndex((k) => k.repo === req.query.k) > -1) {
@@ -183,30 +210,8 @@ app.get('/', function(req, res) {
 
 app.listen(3000, function () {
   if (newdb) {
-    process.stdout.write("Creating new database...")
-    // Create tables
-    db.serialize(function() {
-      db.run("CREATE TABLE config (last_update DATETIME);");
-      db.run("CREATE TABLE cve (id INTEGER PRIMARY KEY, cve TEXT);");
-      db.run("CREATE TABLE status (id INTEGER PRIMARY KEY, status TEXT);");
-      db.run("CREATE TABLE kernel (id INTEGER PRIMARY KEY, repo TEXT);");
-      db.run("CREATE TABLE patches (id INTEGER PRIMARY KEY, kernel_id INTEGER, cve_id INTEGER, status_id INTEGER);");
-    });
-
-    // Insert data
-    db.serialize(function() {
-      db.run("INSERT INTO config (last_update) VALUES ('" + new Date() + "')");
-
-      require('readline').createInterface({ input: require('fs').createReadStream('cves.txt') })
-          .on('line', function (line) { db.run("INSERT INTO cve (id, cve) VALUES (NULL, '" + line + "')"); });
-
-      require('readline').createInterface({ input: require('fs').createReadStream('statuses.txt') })
-          .on('line', function (line) { db.run("INSERT INTO status (id, status) VALUES (" + line.split('|')[0] + ",'" + line.split('|')[1] + "')"); });
-    });
-
-    process.stdout.write("Done!\n")
     forceDBUpdate = true;
-    getKernelsFromGithub();
+    createDB();
   } else {
     getStatusIDs();
     getCVEs();
