@@ -8,6 +8,7 @@
     "body-parser": "^1.15.2",
     "express": "^4.14.0",
     "github": "^7.1.0",
+    "nodemon": "^1.11.0",
     "pug": "^2.0.0-beta6",
     "sleep": "^5.0.0",
     "sqlite": "^2.2.4",
