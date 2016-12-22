@@ -3,4 +3,5 @@
 options.json
 nohup.out
 sqlite.db
+sqlite.db-journal
 __pycache__
