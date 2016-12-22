@@ -2,7 +2,6 @@
 
 import app
 import datetime
-import json
 import sqlite3
 
 from github import Github
@@ -129,11 +128,8 @@ def getDBVersion():
 
   return v
 
-def getKernelTableFromGithub():
+def getKernelTableFromGithub(config):
   dbKernels = getKernelsFromDB()
-
-  with open(app.configfile) as config_file:
-    config = json.load(config_file)
 
   u = config['githubusername']
   p = config['githubtoken']

@@ -1,4 +1,5 @@
 {
   "githubusername": "github_username_here",
-  "githubtoken": "github_token_here"
+  "githubtoken": "github_token_here",
+  "port": 5000
 }
