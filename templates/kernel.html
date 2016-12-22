@@ -24,7 +24,7 @@
         </h3>
         <div id='progressbar' value={{ (patched / cves|length) * 100 }}></div>
         <div>
-        {% for column in cves | slice(4) %}
+        {% for column in cves | slice(3) %}
           <div class='four columns'>
             {% for c in column %}
             <div class='cvediv' id='{{ cves[c]['cve'] }}'>
