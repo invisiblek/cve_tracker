@@ -5,3 +5,11 @@ nohup.out
 sqlite.db
 sqlite.db-journal
 __pycache__
+
+#virtualenv
+bin/
+include/
+lib/
+local/
+share/
+pip-selfcheck.json
