@@ -112,8 +112,10 @@ def getKernelsFromDB():
   c = conn.cursor()
   kernels = {}
 
+  cutoffDate = datetime.datetime.now() - datetime.timedelta(days=180)
+
   i = 0
-  for row in c.execute('SELECT * FROM kernel ORDER BY vendor, name'):
+  for row in c.execute('SELECT * FROM kernel WHERE last_github_update > ? ORDER BY vendor, name', (cutoffDate,)):
     kernels[i] = {"id": row[0], "repo": row[1], "last_github_update": row[2], "vendor": row[3], "name": row[4]}
     i += 1
 
