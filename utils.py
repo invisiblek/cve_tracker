@@ -37,6 +37,7 @@ def createDB():
   conn.close()
 
   updateDB()
+  getKernelTableFromGithub()
 
   return
 
@@ -130,12 +131,12 @@ def getDBVersion():
 
   return v
 
-def getKernelTableFromGithub(config):
+def getKernelTableFromGithub():
   print("Updating kernel list from github...this may take a long time...")
   dbKernels = getKernelsFromDB()
 
-  u = config['githubusername']
-  p = config['githubtoken']
+  u = app.config['githubusername']
+  p = app.config['githubtoken']
   g = Github(u, p)
 
   org = g.get_organization('LineageOS')

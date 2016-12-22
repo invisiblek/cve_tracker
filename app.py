@@ -57,7 +57,7 @@ if __name__ == "__main__":
   if utils.getDBVersion() < db_version:
     print("Database version out of date, updating...")
     utils.updateDB()
-    utils.getKernelTableFromGithub(config)
+    utils.getKernelTableFromGithub()
 
   if not config['port']:
     port=5000
