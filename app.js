@@ -88,6 +88,11 @@ function getKernelsFromGithub() {
   req = github.repos.getForOrg({ org: "LineageOS", per_page: 100 }, getRepos);
 
   function getRepos(err, ret) {
+    if (err) {
+      console.log("Failed to grab kernel repos! ", err);
+      console.log(ghKernels);
+      return;
+    }
     for (var i = 0; i < ret.length; i++) {
       repo = ret[i];
       if (repo.name.indexOf("android_kernel_") == 0) {
