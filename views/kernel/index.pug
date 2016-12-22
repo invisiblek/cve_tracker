@@ -19,6 +19,11 @@ html(lang="en")
         a(href="/") back
       h3
         a(href="https://github.com/LineageOS/" + kernel.repo)= kernel.repo
+      div Devices:
+      div.devices
+        - for (var k = 0; k < devices.length; k++)
+          span.device
+            a(href="https://download.cyanogenmod.org/?device=" + devices[k].split("_").slice(-1))= devices[k].split("_").slice(-1)
       #progressbar(value=(patched/cves.length) * 100)
       div
       - for (var k = 0; k < cves.length / 4; k++)

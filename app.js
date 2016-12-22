@@ -3,6 +3,7 @@ var quickGithub = false;  // flag to only grab one page from github, for testing
 
 var fs = require('fs');
 var options = JSON.parse(fs.readFileSync('options.json', 'utf8'));
+var kernelToDevice = JSON.parse(fs.readFileSync('kernels.json', 'utf8'));
 var database = "sqlite.db";
 var newdb = !fs.existsSync(database);
 var sqlite3 = require("sqlite3").verbose();
@@ -76,7 +77,7 @@ function getKernelsFromDB() {
   db.serialize(function() {
     db.all('SELECT * FROM kernel', function(err, results) {
       for (var i = 0; i < results.length; i++) {
-        if (new Date(results[i].last_github_update) > cutoffDate) {
+        if (new Date(results[i].last_github_update) > cutoffDate && results[i].repo in kernelToDevice) {
           dbKernels.push(results[i]);
         }
       }
@@ -165,7 +166,11 @@ function getStatusesForKernel(res, kernel) {
     });
     db.all('SELECT * FROM patches WHERE kernel_id = "' + kernel.id + '"', function(err, results) {
       statuses = results;
-      res.render("kernel", { kernel: kernel, cves: allCVEs, statuses: statuses, statusIDs: statusIDs, patched: patched });
+      var devices = [];
+      if (kernel.repo in kernelToDevice) {
+        devices = kernelToDevice[kernel.repo].sort();
+      }
+      res.render("kernel", { kernel: kernel, cves: allCVEs, statuses: statuses, statusIDs: statusIDs, patched: patched, devices: devices });
     });
   });
 }

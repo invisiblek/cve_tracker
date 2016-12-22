@@ -152,3 +152,7 @@ div.back {
   top: 2px;
   left: 2px;
 }
+
+span.device {
+  padding: 0 10px;
+}
