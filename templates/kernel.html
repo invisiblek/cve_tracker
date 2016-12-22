@@ -22,6 +22,14 @@
         <h3>
           <a href='https://github.com/LineageOS/{{ kernel.repo }}'>{{ kernel.repo }}</a>
         </h3>
+        <div>Devices:</div>
+        <div id='devices'>
+        {% for d in devices %}
+          <span class='device'>
+            <a href="https://github.com/LineageOS/{{ d }}">{{ d }}</a>
+          </span>
+        {% endfor %}
+        </div>
         <div id='progressbar' value={{ (patched / cves|length) * 100 }}></div>
         <div>
         {% for column in cves | slice(3) %}

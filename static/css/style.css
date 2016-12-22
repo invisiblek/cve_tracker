@@ -166,3 +166,7 @@ span[class^="status_"] {
   user-select: none;
   margin-left: 15px;
 }
+
+span.device {
+  padding: 0 10px;
+}

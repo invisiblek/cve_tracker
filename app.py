@@ -9,6 +9,7 @@ import utils
 from flask import Flask, jsonify, render_template, request
 
 configfile = "options.json"
+devicefile = "kernels.json"
 dbfile = "sqlite.db"
 
 db_version = 3
@@ -27,6 +28,9 @@ if not os.path.isfile(configfile):
 with open(configfile) as config_file:
   config = json.load(config_file)
 
+with open(devicefile) as device_file:
+  devices = json.load(device_file)
+
 @app.route("/")
 def index():
   k = request.args.get("k")
@@ -34,7 +38,7 @@ def index():
     kernel = utils.getKernelByRepo(k)
     patches = utils.getPatchesByRepo(k)
     patched = utils.getNumberOfPatchedByRepoId(k)
-    return render_template('kernel.html', kernel = kernel, patched = patched, cves = allCVEs, status_ids = status_ids, patches = patches)
+    return render_template('kernel.html', kernel = kernel, patched = patched, cves = allCVEs, status_ids = status_ids, patches = patches, devices = devices[k])
   else:
     return render_template('index.html', kernels = kernels)
 
