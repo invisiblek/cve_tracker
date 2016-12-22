@@ -66,10 +66,10 @@ if __name__ == "__main__":
     utils.updateDB()
     utils.getKernelTableFromGithub()
 
-  if not config['port']:
-    port=5000
-  else:
+  if "port" in config:
     port=config['port']
+  else:
+    port=5000
 
   status_ids = utils.getStatusIDs()
   allCVEs = utils.getCVEs()
