@@ -13,10 +13,9 @@ html(lang="en")
         - var last_vendor = "";
         div.four.columns
           - for (var i = j; i < kernels.length && i < j + Math.ceil(kernels.length/3); i++)
-              - var vendor = kernels[i].repo.split("_").slice(-2)[0];
-              if last_vendor != vendor
-                div.header= vendor
-                - last_vendor = vendor
-              div.kernelrow
-                a(href="/?k=" + kernels[i].repo).device= kernels[i].repo.split("_").slice(-1)
-                br
+            if last_vendor != kernels[i].vendor
+              div.header= kernels[i].vendor
+                - last_vendor = kernels[i].vendor
+            div.kernelrow
+              a(href="/?k=" + kernels[i].repo).device= kernels[i].name
+              br

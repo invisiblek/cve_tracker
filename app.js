@@ -54,9 +54,9 @@ function refreshDB() {
 
   if (untrackedKernels.length > 0) {
     db.serialize(function() {
-      var stmt = db.prepare("INSERT INTO kernel (id, repo, last_github_update) VALUES (NULL, ?, ?)");
+      var stmt = db.prepare("INSERT INTO kernel (id, repo, last_github_update, vendor, name) VALUES (NULL, ?, ?, ?, ?)");
       for (var i = 0; i < untrackedKernels.length; i++) {
-        stmt.run(untrackedKernels[i].repo, untrackedKernels[i].updated_at);
+        stmt.run(untrackedKernels[i].repo, untrackedKernels[i].updated_at, untrackedKernels[i].vendor, untrackedKernels[i].name);
       }
       stmt.finalize();
     });
@@ -76,10 +76,29 @@ function getKernelsFromDB() {
           dbKernels.push(results[i]);
         }
       }
-      dbKernels.sort(function(a,b) {return (a.repo > b.repo) ? 1 : ((b.repo > a.repo) ? -1 : 0);});
+      dbKernels.sort(function(a,b) {
+        if (a.vendor == b.vendor) {
+          return (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0);
+        }
+        return (a.vendor > b.vendor) ? 1 : -1;
+      });
       checkRefreshDB();
     });
   });
+}
+
+function getVendorNameFromRepo(repo) {
+  var vendor, name;
+  if (repo.indexOf("_") == -1) {
+    // kernel-lge-mako
+    vendor = repo.split("-")[0];
+    name = repo.split("-")[2];
+  } else {
+    // android_kernel_samsung_manta
+    vendor = repo.split("_")[2];
+    name = repo.split("_")[3];
+  }
+  return {vendor: vendor, name: name};
 }
 
 function getKernelsFromGithub() {
@@ -89,14 +108,16 @@ function getKernelsFromGithub() {
 
   function getRepos(err, ret) {
     if (err) {
-      console.log("Failed to grab kernel repos! ", err);
+      console.log("Failed to grab page from Github! ", err);
       console.log(ghKernels);
       return;
     }
     for (var i = 0; i < ret.length; i++) {
       repo = ret[i];
       if (repo.name.indexOf("android_kernel_") == 0 || repo.name.split('-')[1] == "kernel") {
-        ghKernels.push({repo: repo.name, updated_at: repo.updated_at});
+        var data = getVendorNameFromRepo(repo.name);
+        ghKernels.push({repo: repo.name, updated_at: repo.updated_at,
+          vendor: data.vendor, name: data.name});
       }
     }
 
@@ -216,8 +237,18 @@ function updateDB() {
             db.run("ALTER TABLE kernel ADD last_github_update DATETIME");
             db.run("UPDATE config set db_version=" + db_version);
           case 2:
-            db.run("ALTER TABLE kernel ADD vendor STRING");
-            db.run("ALTER TABLE kernel ADD name STRING");
+            db.serialize(function() {
+              db.run("ALTER TABLE kernel ADD vendor STRING");
+              db.run("ALTER TABLE kernel ADD name STRING");
+              db.all('SELECT * FROM KERNEL', function(err, results) {
+                var stmt = db.prepare("UPDATE kernel SET vendor=? , name=? WHERE id=?");
+                for (var i = 0; i < results.length; i++) {
+                  var data = getVendorNameFromRepo(results[i].repo);
+                  stmt.run(data.vendor, data.name, results[i].id);
+                }
+              });
+              db.run("UPDATE config set db_version=" + db_version);
+            });
         }
       }
     });
