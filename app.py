@@ -19,7 +19,13 @@ allCVEs = {}
 kernels = {}
 
 app = Flask(__name__)
-config = None
+
+if not os.path.isfile(configfile):
+  print("Could not find " + configfile + " aborting!")
+  sys.exit()
+
+with open(configfile) as config_file:
+  config = json.load(config_file)
 
 @app.route("/")
 def index():
@@ -43,13 +49,6 @@ def update():
   return jsonify({'error': 'success', 'patched': patched})
 
 if __name__ == "__main__":
-  if not os.path.isfile(configfile):
-    print("Could not find " + configfile + " aborting!")
-    sys.exit()
-
-  with open(configfile) as config_file:
-    config = json.load(config_file)
-
   if not os.path.isfile(dbfile):
     print("No database found. Creating one...")
     utils.createDB()
