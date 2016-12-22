@@ -156,7 +156,7 @@ function getCVEs() {
   });
 }
 
-function getStatuesForKernel(res, kernel) {
+function getStatusesForKernel(res, kernel) {
   var patched = 0;
   statuses = new Array();
   db.serialize(function() {
@@ -263,7 +263,7 @@ app.get('/', function(req, res) {
   if (req.query.k) {
     if (dbKernels.findIndex((k) => k.repo === req.query.k) > -1) {
       kernel = dbKernels[dbKernels.findIndex((k) => k.repo === req.query.k)];
-      getStatuesForKernel(res, kernel);
+      getStatusesForKernel(res, kernel);
       return;
     } else {
       console.log("Invalid kernel specified. Sending to index...");
