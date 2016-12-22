@@ -34,8 +34,10 @@ def createDB():
     c.execute('INSERT INTO status (id, status) VALUES (?, ?)', (x.split('|')[0], x.split('|')[1]))
 
   conn.commit()
-
   conn.close()
+
+  updateDB()
+
   return
 
 def updateDB():
@@ -129,6 +131,7 @@ def getDBVersion():
   return v
 
 def getKernelTableFromGithub(config):
+  print("Updating kernel list from github...this may take a long time...")
   dbKernels = getKernelsFromDB()
 
   u = config['githubusername']
@@ -150,6 +153,7 @@ def getKernelTableFromGithub(config):
           initializeKernelPatches(repo.name, conn)
 
   conn.close()
+  print("Done!")
   return
 
 def initializeKernelPatches(repo, conn):

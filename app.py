@@ -55,6 +55,7 @@ if __name__ == "__main__":
     utils.createDB()
 
   if utils.getDBVersion() < db_version:
+    print("Database version out of date, updating...")
     utils.updateDB()
     utils.getKernelTableFromGithub(config)
 
