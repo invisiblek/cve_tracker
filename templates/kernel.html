@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel=stylesheet type=text/css href='{{ url_for('static', filename='css/normalize.css') }}' />
+    <link rel=stylesheet type=text/css href='{{ url_for('static', filename='css/skeleton.css') }}' />
+    <link rel=stylesheet type=text/css href='{{ url_for('static', filename='css/style.css') }}' />
+    <link rel=stylesheet type=text/css href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css' />
+
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script>
+    <script src='{{ url_for('static', filename='js/cve.js') }}'></script>
+
+    <title>LineageOS CVE Checklist for {{ kernel['repo'] }}</title>
+    <body>
+      <div id='status_ids' style='display: none;'>
+      {% for s in status_ids %}
+        <div id={{ 'status_' ~ status_ids[s]['id'] }}>{{ status_ids[s]['status'] }}</div>
+      {% endfor %}
+      </div>
+      <div class='frame container'>
+        <div class='back'><a href='/'>back</a></div>
+        <h3>
+          <a href='https://github.com/LineageOS/{{ kernel.repo }}'>{{ kernel.repo }}</a>
+        </h3>
+        <div id='progressbar' value={{ (patched / cves|length) * 100 }}></div>
+        <div>
+        {% for column in cves | slice(4) %}
+          <div class='four columns'>
+            {% for c in column %}
+            <div class='cvediv' id='{{ cves[c]['cve'] }}'>
+              <a href='https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ cves[c]['cve'] }}'>{{ cves[c]['cve'] }}</a>
+              <span id='status' onclick='update(this)' kernel_id={{ kernel['id'] }} cve_id={{ cves[c]['id'] }} status_id={{ (patches.values()|selectattr("cve_id", "equalto", cves[c]['id'])|list)[0]['status_id'] }}></span>
+            </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+        </div>
+      </div>
+    </body>
+  </head>
+</html>

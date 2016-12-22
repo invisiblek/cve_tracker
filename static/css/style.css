@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto');
 
 body {
-  background-image: url("/img/cm13-wallpaper-001.jpg");
+  background-image: url('../img/cm13-wallpaper-001.jpg');
   font-family: "Roboto", sans-serif;
   color: white;
 }
@@ -151,4 +151,8 @@ div.back {
   position: absolute;
   top: 2px;
   left: 2px;
+}
+
+div.kernelrow, div.cvediv {
+  text-align: left;
 }
