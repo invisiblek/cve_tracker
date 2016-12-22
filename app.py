@@ -33,8 +33,10 @@ with open(devicefile) as device_file:
 
 @app.route("/")
 def index():
-  k = request.args.get("k")
-  if not k == None:
+    return render_template('index.html', kernels = kernels)
+
+@app.route("/<string:k>")
+def kernel(k):
     kernel = utils.getKernelByRepo(k)
     patches = utils.getPatchesByRepo(k)
     patched = utils.getNumberOfPatchedByRepoId(k)
@@ -43,8 +45,6 @@ def index():
     else:
       devs = ['No officially supported devices!']
     return render_template('kernel.html', kernel = kernel, patched = patched, cves = allCVEs, status_ids = status_ids, patches = patches, devices = devs)
-  else:
-    return render_template('index.html', kernels = kernels)
 
 @app.route("/update", methods=['POST'])
 def update():

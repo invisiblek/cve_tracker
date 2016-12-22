@@ -17,7 +17,7 @@
           {% set last_vendor = kernels[k]['vendor'] %}
         {% endif %}
         <div class='kernelrow'>
-          <a href='/?k={{ kernels[k]['repo'] }}'>{{ kernels[k]['name'] }}</a></br>
+          <a href='/{{ kernels[k]['repo'] }}'>{{ kernels[k]['name'] }}</a></br>
         </div>
       {% endfor %}
       </div>
