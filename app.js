@@ -19,7 +19,11 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 var GitHubApi = require("github");
-var github = new GitHubApi();
+var github = new GitHubApi({
+  headers: {
+    "user-agent": "cve_tracker/" + db_version
+  }
+});
 
 github.authenticate({
   type: "oauth",
