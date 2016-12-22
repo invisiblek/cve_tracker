@@ -7,7 +7,7 @@ var database = "sqlite.db";
 var newdb = !fs.existsSync(database);
 var sqlite3 = require("sqlite3").verbose();
 var db = new sqlite3.Database(database);
-var db_version = 2;
+var db_version = 3;
 
 var express = require('express');
 var app = express();
@@ -95,7 +95,7 @@ function getKernelsFromGithub() {
     }
     for (var i = 0; i < ret.length; i++) {
       repo = ret[i];
-      if (repo.name.indexOf("android_kernel_") == 0) {
+      if (repo.name.indexOf("android_kernel_") == 0 || repo.name.split('-')[1] == "kernel") {
         ghKernels.push({repo: repo.name, updated_at: repo.updated_at});
       }
     }
@@ -215,6 +215,9 @@ function updateDB() {
           case 1:
             db.run("ALTER TABLE kernel ADD last_github_update DATETIME");
             db.run("UPDATE config set db_version=" + db_version);
+          case 2:
+            db.run("ALTER TABLE kernel ADD vendor STRING");
+            db.run("ALTER TABLE kernel ADD name STRING");
         }
       }
     });
