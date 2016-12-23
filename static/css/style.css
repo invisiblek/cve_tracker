@@ -49,7 +49,7 @@ a {
   color: white;
   text-decoration: none;
   -webkit-transition: all 200ms ease;
-	transition: all 200ms ease;
+  transition: all 200ms ease;
 }
 
 div.row {
@@ -65,11 +65,9 @@ span.cve {
 
 .status {
   cursor: pointer;
-	-webkit-transition: all 200ms ease;
-	transition: all 200ms ease;
+  -webkit-transition: all 200ms ease;
+  transition: all 200ms ease;
 }
-
-
 
 /* Red 500 */
 .status_1 {
@@ -164,7 +162,8 @@ span[class^="status_"] {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-  margin-left: 15px;
+  margin-left: 10px;
+  display: inline-block;
 }
 
 span.device {
