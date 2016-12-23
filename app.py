@@ -6,7 +6,7 @@ import sys
 
 import utils
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, abort, jsonify, render_template, request
 
 configfile = "options.json"
 devicefile = "kernels.json"
@@ -38,6 +38,8 @@ def index():
 @app.route("/<string:k>")
 def kernel(k):
     kernel = utils.getKernelByRepo(k)
+    if kernel is None:
+      abort(404)
     patches = utils.getPatchesByRepo(k)
     patched = utils.getNumberOfPatchedByRepoId(k)
     if k in devices:

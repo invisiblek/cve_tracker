@@ -172,6 +172,8 @@ def getKernelByRepo(repo):
 
   c.execute('SELECT * FROM kernel WHERE repo = ?', (repo,))
   row = c.fetchone()
+  if row is None:
+    return None
   kernel = {"id": row[0], "repo": row[1], "last_github_update": row[2], "vendor": row[3], "name": row[4]}
   conn.close()
 
