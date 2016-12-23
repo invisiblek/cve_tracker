@@ -41,7 +41,7 @@ def index():
     if k in devices:
       devs = devices[k]
     else:
-      devs = {}
+      devs = ['No officially supported devices!']
     return render_template('kernel.html', kernel = kernel, patched = patched, cves = allCVEs, status_ids = status_ids, patches = patches, devices = devs)
   else:
     return render_template('index.html', kernels = kernels)

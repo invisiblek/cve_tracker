@@ -26,7 +26,11 @@
         <div id='devices'>
         {% for d in devices %}
           <span class='device'>
-            <a href="https://github.com/LineageOS/{{ d }}">{{ d }}</a>
+            {% if ' ' not in d %}
+              <a href="https://github.com/LineageOS/{{ d }}">{{ d }}</a>
+            {% else %}
+              {{ d }}
+            {% endif %}
           </span>
         {% endfor %}
         </div>
