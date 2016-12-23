@@ -71,7 +71,7 @@ def getVendorNameFromRepo(repo):
   v = "error"
   n = "error"
   if len(repo.split('_')) < 2:
-    # kernel-lge-mako
+    # lge-kernel-mako
     v = repo.split('-')[0]
     n = repo.split('-')[2]
   elif len(repo.split('_')) == 4:
