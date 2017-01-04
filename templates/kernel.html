@@ -11,19 +11,22 @@
     <script src='{{ url_for('static', filename='js/cve.js') }}'></script>
 
     <title>LineageOS CVE Checklist for {{ kernel.repo }}</title>
-    <body>
-      <div id='status_ids' style='display: none;'>
+  </head>
+  <body>
+    <div id='status_ids' style='display: none;'>
       {% for s in status_ids %}
-        <div id={{ 'status_' ~ s.short_id }}>{{ s.text }}</div>
+        <div id={{ 'status_' ~ s.short_id }}>
+          {{ s.text }}
+        </div>
       {% endfor %}
-      </div>
-      <div class='frame container'>
-        <div class='back'><a href='/'>back</a></div>
-        <h3>
-          <a href='https://github.com/LineageOS/{{ kernel.repo }}'>{{ kernel.repo }}</a>
-        </h3>
-        <div>Devices:</div>
-        <div id='devices'>
+    </div>
+    <div class='frame container'>
+      <div class='back'><a href='/'>back</a></div>
+      <h3>
+        <a href='https://github.com/LineageOS/{{ kernel.repo }}'>{{ kernel.repo }}</a>
+      </h3>
+      <div>Devices:</div>
+      <div id='devices'>
         {% for d in devices %}
           <span class='device'>
             {% if ' ' not in d %}
@@ -33,21 +36,20 @@
             {% endif %}
           </span>
         {% endfor %}
-        </div>
-        <div id='progressbar' value={{ (patched / cves|length) * 100 }}></div>
-        <div>
+      </div>
+      <div id='progressbar' value={{ (patched / cves|length) * 100 }}></div>
+      <div>
         {% for column in cves | slice(3) %}
           <div class='four columns'>
             {% for c in column %}
-            <div class='cvediv' id='{{ c.cve_name }}'>
-              <a href='https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ c.cve_name }}'>{{ c.cve_name }}</a>
-              <span id='status' onclick='update(this)' kernel_id={{ kernel.id }} cve_id={{ c.id }} status_id={{ status_ids.get(id=patches.get(cve=c.id).status).short_id }}></span>
-            </div>
+              <div class='cvediv' id='{{ c.cve_name }}'>
+                <a href='https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ c.cve_name }}'>{{ c.cve_name }}</a>
+                <span id='status' onclick='update(this)' kernel_id={{ kernel.id }} cve_id={{ c.id }} status_id={{ status_ids.get(id=patches.get(cve=c.id).status).short_id }}></span>
+              </div>
             {% endfor %}
           </div>
         {% endfor %}
-        </div>
       </div>
-    </body>
-  </head>
+    </div>
+  </body>
 </html>
