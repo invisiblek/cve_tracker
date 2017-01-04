@@ -6,18 +6,12 @@ import sys
 
 import utils
 
+from classes import *
 from flask import Flask, abort, jsonify, render_template, request
 
 configfile = "options.json"
 devicefile = "kernels.json"
-dbfile = "sqlite.db"
-
-db_version = 3
 forceDBUpdate = False
-
-status_ids = {}
-allCVEs = {}
-kernels = {}
 
 app = Flask(__name__)
 
@@ -31,22 +25,31 @@ with open(configfile) as config_file:
 with open(devicefile) as device_file:
   devices = json.load(device_file)
 
+connect('cve_tracker', host=config['dbhost'])
+
 @app.route("/")
 def index():
-    return render_template('index.html', kernels = kernels)
+    return render_template('index.html', kernels=Kernel.objects().order_by('vendor', 'device'))
 
 @app.route("/<string:k>")
 def kernel(k):
-    kernel = utils.getKernelByRepo(k)
-    if kernel is None:
-      abort(404)
-    patches = utils.getPatchesByRepo(k)
-    patched = utils.getNumberOfPatchedByRepoId(k)
+    try:
+        kernel = Kernel.objects.get(repo_name=k)
+    except:
+        abort(404)
+    patches = Patches.objects(kernel=Kernel.objects.get(repo_name=k).id)
+    patched = len(Patches.objects(kernel=Kernel.objects.get(repo_name=k).id, status=Status.objects.get(text='patched').id))
     if k in devices:
       devs = devices[k]
     else:
       devs = ['No officially supported devices!']
-    return render_template('kernel.html', kernel = kernel, patched = patched, cves = allCVEs, status_ids = status_ids, patches = patches, devices = devs)
+    return render_template('kernel.html',
+                           kernel = kernel,
+                           patched = patched,
+                           cves = CVE.objects().order_by('cve_name'),
+                           status_ids = Status.objects(),
+                           patches = patches,
+                           devices = devs)
 
 @app.route("/update", methods=['POST'])
 def update():
@@ -54,28 +57,16 @@ def update():
   k = r['kernel_id'];
   c = r['cve_id'];
   s = r['status_id'];
-  utils.updatePatchStatus(k, c, s)
-  patched = utils.getNumberOfPatchedByRepoId(k)
+
+  Patches.objects(kernel=k, cve=c).update(status=Status.objects.get(short_id=s).id)
+  patched = len(Patches.objects(kernel=k, status=Status.objects.get(text='patched').id))
   return jsonify({'error': 'success', 'patched': patched})
 
 if __name__ == "__main__":
-  if not os.path.isfile(dbfile):
-    print("No database found. Creating one...")
-    utils.createDB()
-
-  if utils.getDBVersion() < db_version:
-    print("Database version out of date, updating...")
-    utils.updateDB()
-    utils.getKernelTableFromGithub()
-
   if "port" in config:
     port=config['port']
   else:
     port=5000
-
-  status_ids = utils.getStatusIDs()
-  allCVEs = utils.getCVEs()
-  kernels = utils.getKernelsFromDB()
 
   # TODO: add something to check github every day for new kernel repos and call getKernelTableFromGithub()
   app.run(host="0.0.0.0", debug=True, port=port)
