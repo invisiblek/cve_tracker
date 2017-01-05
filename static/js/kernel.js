@@ -10,7 +10,7 @@ function openLinks(cve, cve_id) {
             })
   }).done(function(data) {
     $.each(JSON.parse(data), function(i, v) {
-      $("#links").append("<a href='" + v.link + "'>" + v.link + "</a><br/>");
+      $("#links").append("<a href='" + v.link + "' target='_blank' >" + v.link + "</a><br/>");
     });
     $("#links").dialog('option', 'title', cve).dialog('open');
   });
