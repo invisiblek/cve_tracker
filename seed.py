@@ -16,8 +16,8 @@ if not os.path.isfile(configfile):
 with open(configfile) as config_file:
   config = json.load(config_file)
 
-db = connect('cve_tracker', host=config['dbhost'])
-db.drop_database('cve_tracker')
+db = connect(config['dbname'], host=config['dbhost'])
+db.drop_database(config['dbname'])
 
 f = open('cves.txt')
 while True:

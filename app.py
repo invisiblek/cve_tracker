@@ -27,7 +27,7 @@ with open(os.path.join(dir, configfile)) as config_file:
 with open(os.path.join(dir, devicefile)) as device_file:
   devices = json.load(device_file)
 
-connect('cve_tracker', host=config['dbhost'])
+connect(config['dbname'], host=config['dbhost'])
 
 @app.route("/")
 def index():
