@@ -19,11 +19,14 @@ with open(configfile) as config_file:
 db = connect(config['dbname'], host=config['dbhost'])
 db.drop_database(config['dbname'])
 
+mitrelink='https://cve.mitre.org/cgi-bin/cvename.cgi?name='
+
 f = open('cves.txt')
 while True:
   x = f.readline().rstrip()
   if not x: break
   CVE(cve_name=x).save()
+  Links(cve_id=CVE.objects.get(cve_name=x), link=mitrelink+x).save()
 
 f = open('statuses.txt')
 while True:

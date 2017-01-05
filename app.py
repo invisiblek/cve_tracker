@@ -64,6 +64,12 @@ def update():
   patched = len(Patches.objects(kernel=k, status=Status.objects.get(text='patched').id))
   return jsonify({'error': 'success', 'patched': patched})
 
+@app.route("/getlinks", methods=['POST'])
+def getlinks():
+  r = request.get_json()
+  c = r['cve_id'];
+  return Links.objects(cve_id=c).to_json()
+
 if __name__ == "__main__":
   if "port" in config:
     port=config['port']

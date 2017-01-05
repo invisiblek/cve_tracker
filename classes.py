@@ -22,3 +22,7 @@ class Patches(Document):
   kernel = ObjectIdField()
   cve = ObjectIdField()
   status = ObjectIdField()
+
+class Links(Document):
+  cve_id = ObjectIdField()
+  link = StringField(required=True)

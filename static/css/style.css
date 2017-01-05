@@ -169,3 +169,11 @@ span[class^="status_"] {
 span.device {
   padding: 0 10px;
 }
+
+#links {
+  display: none;
+}
+
+#links > a {
+  font-size: 14px;
+}
