@@ -15,14 +15,16 @@ forceDBUpdate = False
 
 app = Flask(__name__)
 
-if not os.path.isfile(configfile):
+dir = os.path.dirname(__file__)
+
+if not os.path.isfile(os.path.join(dir, configfile)):
   print("Could not find " + configfile + " aborting!")
   sys.exit()
 
-with open(configfile) as config_file:
+with open(os.path.join(dir, configfile)) as config_file:
   config = json.load(config_file)
 
-with open(devicefile) as device_file:
+with open(os.path.join(dir, devicefile)) as device_file:
   devices = json.load(device_file)
 
 connect('cve_tracker', host=config['dbhost'])
