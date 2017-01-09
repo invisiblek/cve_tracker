@@ -77,6 +77,8 @@ def addcve(cve = None):
       cve_id = CVE.objects.get(cve_name=cve)['id']
       for k in Kernel.objects():
         Patches(cve=cve_id, kernel=k.id, status=Status.objects.get(short_id=1)['id']).save()
+      mitrelink='https://cve.mitre.org/cgi-bin/cvename.cgi?name='
+      Links(cve_id=cve_id, link=mitrelink+cve).save()
       msg = "Added " + cve + "!"
 
     return render_template('addcve.html', msg=msg)
