@@ -43,3 +43,10 @@ def getKernelTableFromGithub():
 
   print("Done!")
   return
+
+def nukeCVE(cve):
+  if CVE.objects(cve_name=cve):
+    cve_id = CVE.objects(cve_name=cve).first()['id']
+    Patches.objects(cve=cve_id).delete()
+    Links.objects(cve_id=cve_id).delete()
+    CVE.objects(id=cve_id).delete()

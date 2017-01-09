@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel=stylesheet type=text/css href='{{ url_for('static', filename='css/skeleton.css') }}' />
+    <link rel=stylesheet type=text/css href='{{ url_for('static', filename='css/style.css') }}' />
+    <link rel=stylesheet type=text/css href='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css' />
+
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
+    <script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script>
+    <script src='{{ url_for('static', filename='js/editcve.js') }}'></script>
+
+    <title>LineageOS CVE Checklist - Edit {{ cve.cve_name }}</title>
+  </head>
+  <body>
+    <div cve_id="{{ cve.id }}" id="addlink">
+      <input type="text" name="link" id="linktoadd"><br>
+      <input type="button" value="Add!" id="confirmaddlink">
+      <div id="addlinkerror"></div>
+    </div>
+    <div cve_name="{{ cve.cve_name }}" id="confirmdeletecve">
+      <input type="button" value="Yes!" id="yesdeletecve">
+      <input type="button" value="NOOOOO!" id="nodeletecve">
+    </div>
+    <div link_id="" id="confirmdeletelink">
+      <input type="button" value="Yes!" id="yesdeletelink">
+      <input type="button" value="NOOOOO!" id="nodeletelink">
+      <div id="deletelinkerror"></div>
+    </div>
+    <div class='frame container'>
+      <div class='back'><a href='/'>back</a></div>
+      {% if msg %}
+        <div>
+          {{ msg }}
+        </div>
+      {% else %}
+        <h3>{{ cve.cve_name }}</h3>
+        <div id="linklist">
+          {% for l in links %}
+            <div><a class='deletelink' onclick='deletelink(this);' id="{{ l.id }}">{{ l.link }}</a></div>
+          {% endfor %}
+        </div>
+        <a onclick='addlink();'>Add New Link</span>
+        <br><br><a class='deletecve' onclick='deletecve();'>Delete</span>
+      {% endif %}
+      <div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -11,6 +11,8 @@ div.frame {
   padding: 20px;
   float: center;
   text-align: center;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 div.repo {
@@ -170,10 +172,14 @@ span.device {
   padding: 0 10px;
 }
 
-#links {
+#links, #addlink, #confirmdelete {
   display: none;
 }
 
 #links > a {
   font-size: 14px;
+}
+
+a:hover.deletecve, a:hover.deletelink {
+  color: #ce0f0f;
 }

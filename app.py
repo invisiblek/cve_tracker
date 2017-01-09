@@ -29,6 +29,9 @@ with open(os.path.join(dir, devicefile)) as device_file:
 
 connect(config['dbname'], host=config['dbhost'])
 
+def error(msg = ""):
+    return render_template('error.html', msg=msg)
+
 @app.route("/")
 def index():
     return render_template('index.html', kernels=Kernel.objects().order_by('vendor', 'device'))
@@ -84,6 +87,57 @@ def addcve(cve = None):
     return render_template('addcve.html', msg=msg)
   else:
     return render_template('addcve.html')
+
+@app.route("/editcve/<string:cvename>")
+def editcve(cvename = None):
+  if cvename and CVE.objects(cve_name=cvename):
+    cve = CVE.objects.get(cve_name=cvename)
+    return render_template('editcve.html',
+                           cve=cve,
+                           links=Links.objects(cve_id=cve['id']))
+  else:
+    msg = cvename + " is invalid or doesn't exist!"
+    return render_template('editcve.html', msg=msg)
+
+@app.route("/deletecve/<string:cvename>")
+def deletecve(cvename = None):
+  if cvename and CVE.objects(cve_name=cvename):
+    utils.nukeCVE(cvename)
+    return render_template('deletedcve.html', cve_name=cvename)
+  return error()
+
+@app.route("/addlink", methods=['POST'])
+def addlink():
+  errstatus = "Generic error"
+  link_id = ""
+  r = request.get_json()
+  c = r['cve_id']
+  l = r['link_url']
+
+  if not CVE.objects(id=c):
+    errstatus = "CVE doesn't exist"
+  elif Links.objects(cve_id=c, link=l):
+    errstatus = "Link already exists!"
+  else:
+    Links(cve_id=c, link=l).save()
+    link_id = Links.objects.get(cve_id=c, link=l)['id']
+    errstatus = "success"
+
+  return jsonify({'error': errstatus, 'link_id': str(link_id)})
+
+@app.route("/deletelink", methods=['POST'])
+def deletelink():
+  errstatus = "Generic error"
+  r = request.get_json()
+  l = r['link_id']
+
+  if l and Links.objects(id=l):
+    Links.objects(id=l).delete()
+    errstatus = "success"
+  else:
+    errstatus = "Link doesn't exist"
+
+  return jsonify({'error': errstatus})
 
 @app.route("/getlinks", methods=['POST'])
 def getlinks():
