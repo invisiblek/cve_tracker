@@ -35,14 +35,17 @@ def getKernelTableFromGithub():
   for repo in org.get_repos():
     if "android_kernel_" in repo.name or "-kernel-" in repo.name:
       if repo.name not in Kernel.objects().order_by('repo_name'):
-        v, n = getVendorNameFromRepo(repo.name)
-        if v is not "error" and n is not "error":
-          Kernel(repo_name=repo.name, last_github_update=repo.updated_at, vendor=v, device=n).save()
-          for c in CVE.objects():
-            Patches(cve=c.id, kernel=Kernel.objects.get(repo_name=repo.name).id, status=Status.objects.get(text='unpatched').id).save()
+        addKernel(repo.name, repo.updated_at)
 
   print("Done!")
   return
+
+def addKernel(reponame, last_update=datetime.datetime.now()):
+  v, n = getVendorNameFromRepo(reponame)
+  if v is not "error" and n is not "error":
+    Kernel(repo_name=reponame, last_github_update=last_update, vendor=v, device=n).save()
+    for c in CVE.objects():
+      Patches(cve=c.id, kernel=Kernel.objects.get(repo_name=reponame).id, status=Status.objects.get(text='unpatched').id).save()
 
 def nukeCVE(cve):
   if CVE.objects(cve_name=cve):

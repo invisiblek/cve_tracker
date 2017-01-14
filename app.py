@@ -88,6 +88,24 @@ def addcve(cve = None):
   else:
     return render_template('addcve.html')
 
+@app.route("/addkernel")
+@app.route("/addkernel/<string:kernel>")
+def addkernel(kernel = None):
+  if kernel:
+    if Kernel.objects(repo_name=kernel):
+      msg = kernel + " already exists!"
+    else:
+      v, n = utils.getVendorNameFromRepo(kernel)
+      if v is "error" or n is "error":
+        msg = kernel + " is invalid!"
+      else:
+        utils.addKernel(kernel)
+        msg = "Added " + kernel + "!"
+
+    return render_template('addkernel.html', msg=msg)
+  else:
+    return render_template('addkernel.html')
+
 @app.route("/editcve/<string:cvename>")
 def editcve(cvename = None):
   if cvename and CVE.objects(cve_name=cvename):
