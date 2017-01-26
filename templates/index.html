@@ -9,12 +9,10 @@
   <body>
     <div class='frame container'>
     {% for column in kernels | slice(3) %}
-      {% set last_vendor = '' %}
       <div class='four columns'>
       {% for k in column %}
-        {% if last_vendor != k.vendor %}
+        {% if column[loop.index0-1].vendor != k.vendor %}
           <div class='header'>{{ k.vendor }}</div>
-          {% set last_vendor = k.vendor %}
         {% endif %}
         <div class='kernelrow'>
           <a href='/{{ k.repo_name }}'>{{ k.device }}</a></br>
