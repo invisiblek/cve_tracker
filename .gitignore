@@ -1,6 +1,6 @@
 *.swp
 
-options.json
+app.cfg
 nohup.out
 __pycache__
 *.pyc

@@ -4,20 +4,12 @@ import json
 import os
 
 from classes import *
-from mongoengine import *
 from utils import *
 
-configfile = 'options.json'
+from flask_mongoengine import MongoEngine
+db = MongoEngine(app)
 
-if not os.path.isfile(configfile):
-  print('Could not find ' + configfile + ' aborting!')
-  sys.exit()
-
-with open(configfile) as config_file:
-  config = json.load(config_file)
-
-db = connect(config['dbname'], host=config['dbhost'])
-db.drop_database(config['dbname'])
+db.drop_database(config['MONGODB_DB'])
 
 mitrelink='https://cve.mitre.org/cgi-bin/cvename.cgi?name='
 

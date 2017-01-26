@@ -5,9 +5,7 @@ import datetime
 
 from classes import *
 from github import Github
-from mongoengine import *
-
-connect(app.config['dbname'], host=app.config['dbhost'])
+from flask_mongoengine import MongoEngine
 
 def getVendorNameFromRepo(repo):
   v = "error"
@@ -26,8 +24,8 @@ def getVendorNameFromRepo(repo):
 def getKernelTableFromGithub():
   print("Updating kernel list from github...this may take a long time...")
 
-  u = app.config['githubusername']
-  p = app.config['githubtoken']
+  u = app.config['GITHUBUSER']
+  p = app.config['GITHUBTOKEN']
   g = Github(u, p)
 
   org = g.get_organization('LineageOS')

@@ -8,33 +8,28 @@ import utils
 
 from classes import *
 from flask import Flask, abort, jsonify, render_template, request
+from flask_mongoengine import MongoEngine
 
-configfile = "options.json"
 devicefile = "kernels.json"
 forceDBUpdate = False
 
 app = Flask(__name__)
+app.config.from_pyfile('app.cfg')
 
 dir = os.path.dirname(__file__)
-
-if not os.path.isfile(os.path.join(dir, configfile)):
-  print("Could not find " + configfile + " aborting!")
-  sys.exit()
-
-with open(os.path.join(dir, configfile)) as config_file:
-  config = json.load(config_file)
 
 with open(os.path.join(dir, devicefile)) as device_file:
   devices = json.load(device_file)
 
-connect(config['dbname'], host=config['dbhost'])
+db = MongoEngine(app)
 
 def error(msg = ""):
     return render_template('error.html', msg=msg)
 
 @app.route("/")
 def index():
-    return render_template('index.html', kernels=Kernel.objects().order_by('vendor', 'device'))
+    kernels = Kernel.objects().order_by('vendor', 'device')
+    return render_template('index.html', kernels=kernels)
 
 @app.route("/<string:k>")
 def kernel(k):
@@ -162,12 +157,3 @@ def getlinks():
   r = request.get_json()
   c = r['cve_id'];
   return Links.objects(cve_id=c).to_json()
-
-if __name__ == "__main__":
-  if "port" in config:
-    port=config['port']
-  else:
-    port=5000
-
-  # TODO: add something to check github every day for new kernel repos and call getKernelTableFromGithub()
-  app.run(host="0.0.0.0", debug=True, port=port)

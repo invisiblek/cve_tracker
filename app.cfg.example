@@ -1,0 +1,5 @@
+MONGODB_DB = 'cve_tracker'
+MONGODB_HOST = '127.0.0.1'
+
+GITHUBUSER = 'github_username'
+GITHUBTOKEN = 'github_token'
