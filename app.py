@@ -15,17 +15,19 @@ forceDBUpdate = False
 
 app = Flask(__name__)
 
-if not os.path.isfile(configfile):
+dir = os.path.dirname(__file__)
+
+if not os.path.isfile(os.path.join(dir, configfile)):
   print("Could not find " + configfile + " aborting!")
   sys.exit()
 
-with open(configfile) as config_file:
+with open(os.path.join(dir, configfile)) as config_file:
   config = json.load(config_file)
 
-with open(devicefile) as device_file:
+with open(os.path.join(dir, devicefile)) as device_file:
   devices = json.load(device_file)
 
-connect('cve_tracker', host=config['dbhost'])
+connect(config['dbname'], host=config['dbhost'])
 
 @app.route("/")
 def index():
@@ -61,6 +63,12 @@ def update():
   Patches.objects(kernel=k, cve=c).update(status=Status.objects.get(short_id=s).id)
   patched = len(Patches.objects(kernel=k, status=Status.objects.get(text='patched').id))
   return jsonify({'error': 'success', 'patched': patched})
+
+@app.route("/getlinks", methods=['POST'])
+def getlinks():
+  r = request.get_json()
+  c = r['cve_id'];
+  return Links.objects(cve_id=c).to_json()
 
 if __name__ == "__main__":
   if "port" in config:

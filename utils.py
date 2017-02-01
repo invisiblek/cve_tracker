@@ -7,7 +7,7 @@ from classes import *
 from github import Github
 from mongoengine import *
 
-connect('cve_tracker', host=app.config['dbhost'])
+connect(app.config['dbname'], host=app.config['dbhost'])
 
 def getVendorNameFromRepo(repo):
   v = "error"

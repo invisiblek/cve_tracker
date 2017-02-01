@@ -9,6 +9,7 @@
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js'></script>
     <script src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js'></script>
     <script src='{{ url_for('static', filename='js/cve.js') }}'></script>
+    <script src='{{ url_for('static', filename='js/kernel.js') }}'></script>
 
     <title>LineageOS CVE Checklist for {{ kernel.repo }}</title>
   </head>
@@ -20,6 +21,7 @@
         </div>
       {% endfor %}
     </div>
+    <div id="links"></div>
     <div class='frame container'>
       <div class='back'><a href='/'>back</a></div>
       <h3>
@@ -43,7 +45,7 @@
           <div class='four columns'>
             {% for c in column %}
               <div class='cvediv' id='{{ c.cve_name }}'>
-                <a href='https://cve.mitre.org/cgi-bin/cvename.cgi?name={{ c.cve_name }}'>{{ c.cve_name }}</a>
+                <a onclick='openLinks("{{ c.cve_name }}", "{{ c.id }}")'>{{ c.cve_name }}</a>
                 <span id='status' onclick='update(this)' kernel_id={{ kernel.id }} cve_id={{ c.id }} status_id={{ status_ids.get(id=patches.get(cve=c.id).status).short_id }}></span>
               </div>
             {% endfor %}
