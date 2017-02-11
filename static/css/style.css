@@ -166,6 +166,7 @@ span[class^="status_"] {
   user-select: none;
   margin-left: 10px;
   display: inline-block;
+  cursor: pointer;
 }
 
 span.device {
