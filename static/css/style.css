@@ -110,14 +110,14 @@ span.cve {
   color: #2962FF;
 }
 
-/* Green A400 */
+/* Teal A300 */
 .status_5 {
-  color: #00E676;
+  color: #4DB6AC;
 }
 
-/* Green A700 */
+/* Teal A700 */
 .status_5:hover {
-  color: #00C853;
+  color: #00796B;
 }
 
 #progressbar {
