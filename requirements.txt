@@ -1,3 +1,4 @@
 flask
+flask_mongoengine
 mongoengine
 pygithub
