@@ -6,10 +6,12 @@ import os
 from classes import *
 from utils import *
 
+from flask import Flask
 from flask_mongoengine import MongoEngine
-db = MongoEngine(app)
 
-db.drop_database(config['MONGODB_DB'])
+app = Flask(__name__)
+app.config.from_pyfile('app.cfg')
+db = MongoEngine(app)
 
 mitrelink='https://cve.mitre.org/cgi-bin/cvename.cgi?name='
 
@@ -25,8 +27,6 @@ while True:
   x = f.readline().rstrip()
   if not x: break
   Status(short_id=x.split('|')[0], text=x.split('|')[1]).save()
-
-getKernelTableFromGithub()
 
 f = open('patches.txt')
 while True:
