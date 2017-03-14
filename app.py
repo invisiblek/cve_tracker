@@ -30,7 +30,7 @@ def error(msg = ""):
 @app.route("/")
 def index():
     kernels = Kernel.objects().order_by('vendor', 'device')
-    version = subprocess.check_output(["git", "describe", "--always"])
+    version = subprocess.check_output(["git", "describe", "--always"], cwd=os.path.dirname(os.path.realpath(__file__)))
     return render_template('index.html', kernels=kernels, version=version)
 
 @app.route("/<string:k>")
