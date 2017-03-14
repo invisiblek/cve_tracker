@@ -10,10 +10,15 @@ from flask_mongoengine import MongoEngine
 def getVendorNameFromRepo(repo):
   v = "error"
   n = "error"
+
+  if len(repo) == 0:
+    return v, n
+
   if len(repo.split('_')) < 2:
     # lge-kernel-mako
-    v = repo.split('-')[0]
-    n = repo.split('-')[2]
+    if len(repo.split('-')) >= 3:
+      v = repo.split('-')[0]
+      n = repo.split('-')[2]
   elif len(repo.split('_')) == 4:
     # android_kernel_samsung_manta
     v = repo.split('_')[2]
