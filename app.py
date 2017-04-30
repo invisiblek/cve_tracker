@@ -39,8 +39,8 @@ def kernel(k):
         kernel = Kernel.objects.get(repo_name=k)
     except:
         abort(404)
-    patches = Patches.objects(kernel=Kernel.objects.get(repo_name=k).id)
-    patched = len(Patches.objects(kernel=Kernel.objects.get(repo_name=k).id, status=Status.objects.get(text='patched').id))
+    patches = Patches.objects(kernel=kernel.id)
+    patched = len(Patches.objects(kernel=kernel.id, status=Status.objects.get(text='patched').id))
     if k in devices:
       devs = devices[k]
     else:
@@ -91,7 +91,7 @@ def addcve():
     if not cve:
       errstatus = "No CVE specified!"
     elif len(notes) < 10:
-      errstatus = "Notes have to be more than 10 characters!";
+      errstatus = "Notes have to be at least 10 characters!";
 
   return jsonify({'error': errstatus})
 
@@ -180,7 +180,7 @@ def editnotes():
     CVE.objects(id=c).update(set__notes=r['cve_notes'])
     errstatus = "success"
   elif not n or len(n) < 10:
-    errstatus = "Notes have to be more than 10 characters!";
+    errstatus = "Notes have to be at least 10 characters!";
   else:
     errstatus = "CVE doesn't exist"
 
