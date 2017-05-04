@@ -386,7 +386,8 @@
     ],
     "android_kernel_sony_msm8x60": [
         "android_device_sony_hayabusa",
-        "android_device_sony_mint"
+        "android_device_sony_mint",
+        "android_device_sony_tsubasa"
     ],
     "android_kernel_oppo_msm8974": [
         "android_device_oppo_find7",
