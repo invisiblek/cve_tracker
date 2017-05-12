@@ -109,14 +109,15 @@ def kernel(k):
     except:
         abort(404)
     patches = Patches.objects(kernel=kernel.id)
-    patched = len(Patches.objects(kernel=kernel.id, status=Status.objects.get(text='patched').id))
+    patched = Patches.objects(kernel=kernel.id, status=Status.objects.get(text='patched').id).count()
+    progress = patched / CVE.objects().count() * 100.0;
     if k in devices:
       devs = devices[k]
     else:
       devs = ['No officially supported devices!']
     return render_template('kernel.html',
                            kernel = kernel,
-                           patched = patched,
+                           progress = progress,
                            cves = CVE.objects().order_by('cve_name'),
                            status_ids = Status.objects(),
                            patches = patches,
@@ -143,8 +144,9 @@ def update():
   s = r['status_id'];
 
   Patches.objects(kernel=k, cve=c).update(status=Status.objects.get(short_id=s).id)
-  patched = len(Patches.objects(kernel=k, status=Status.objects.get(text='patched').id))
-  return jsonify({'error': 'success', 'patched': patched})
+  patched = Patches.objects(kernel=k, status=Status.objects.get(text='patched').id).count()
+  progress = patched / CVE.objects().count() * 100.0;
+  return jsonify({'error': 'success', 'progress': progress})
 
 
 @app.route("/addcve", methods=['POST'])

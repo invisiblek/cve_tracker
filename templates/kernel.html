@@ -58,7 +58,7 @@
           </span>
         {% endfor %}
       </div>
-      <div id='progressbar' value={{ (patched / cves|length) * 100 }}></div>
+      <div id='progressbar' value={{ progress }}></div>
       <div>
         {% for column in cves | slice(3) %}
           <div class='four columns'>
