@@ -110,7 +110,8 @@ def kernel(k):
         abort(404)
     patches = Patches.objects(kernel=kernel.id)
     patched = Patches.objects(kernel=kernel.id, status=Status.objects.get(text='patched').id).count()
-    progress = patched / CVE.objects().count() * 100.0;
+    dna = Patches.objects(kernel=kernel.id, status=Status.objects.get(text='does not apply').id).count()
+    progress = (patched + dna) / CVE.objects().count() * 100.0;
     if k in devices:
       devs = devices[k]
     else:
@@ -145,7 +146,8 @@ def update():
 
   Patches.objects(kernel=k, cve=c).update(status=Status.objects.get(short_id=s).id)
   patched = Patches.objects(kernel=k, status=Status.objects.get(text='patched').id).count()
-  progress = patched / CVE.objects().count() * 100.0;
+  dna = Patches.objects(kernel=k, status=Status.objects.get(text='does not apply').id).count()
+  progress = (patched + dna) / CVE.objects().count() * 100.0;
   return jsonify({'error': 'success', 'progress': progress})
 
 
