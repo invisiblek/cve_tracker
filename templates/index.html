@@ -29,7 +29,7 @@
     {% for column in kernels | slice(3) %}
       <div class='four columns'>
       {% for k in column %}
-        {% if column[loop.index0-1].vendor != k.vendor %}
+        {% if loop.index0 == 0 or column[loop.index0-1].vendor != k.vendor%}
           <div class='header'>{{ k.vendor }}</div>
         {% endif %}
         <div class='kernelrow'>
