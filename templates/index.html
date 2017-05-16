@@ -33,7 +33,7 @@
           <div class='header'>{{ k.vendor }}</div>
         {% endif %}
         <div class='kernelrow'>
-          <a href='/{{ k.repo_name }}'>{{ k.device }} ({{ progress[loop.index0]|int }} %)</a></br>
+          <a href='/{{ k.repo_name }}'>{{ k.device }} ({{ k.progress|int }} %)</a></br>
         </div>
       {% endfor %}
       </div>

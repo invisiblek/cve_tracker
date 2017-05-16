@@ -59,8 +59,8 @@
         {% endfor %}
       </div>
       <div id="progress">
-        <div id='progressvalue'>{{ progress|int }} %</div>
-        <div id='progressbar' value='{{ progress }}'></div>
+        <div id='progressvalue'>{{ kernel.progress|int }} %</div>
+        <div id='progressbar' value='{{ kernel.progress }}'></div>
       </div>
       <div style="clear: both">
         {% for column in cves | slice(3) %}

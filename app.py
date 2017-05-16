@@ -53,6 +53,12 @@ app.config['DEBUG_TB_PANELS'] = [
 
 toolbar = flask_debugtoolbar.DebugToolbarExtension(app)
 
+@app.cli.command()
+def update_progress():
+    for k in Kernel.objects():
+        k.progress = utils.getProgress(k.id)
+        k.save()
+
 def logged_in():
     return ('github_token' in session and session['github_token']) or app.config['GITHUB_ORG'] == None
 
@@ -110,10 +116,7 @@ def error(msg = ""):
 @cache.cached(3600, unless=logged_in)
 def index():
     kernels = Kernel.objects().order_by('vendor', 'device')
-    progress = []
-    for k in kernels:
-        progress.append(Kernel.objects.get(id=k.id).progress)
-    return render_template('index.html', kernels=kernels, progress=progress, version=version, authorized=logged_in(),
+    return render_template('index.html', kernels=kernels, version=version, authorized=logged_in(),
           needs_auth=app.config['GITHUB_ORG'] != 'none')
 
 @app.route("/<string:k>")
@@ -124,7 +127,6 @@ def kernel(k):
     except:
         abort(404)
     patches = Patches.objects(kernel=kernel.id)
-    progress = utils.getProgress(kernel.id)
     cves = CVE.objects().order_by('cve_name')
     patch_status = []
     for c in cves:
@@ -136,7 +138,6 @@ def kernel(k):
         devs = ['No officially supported devices!']
     return render_template('kernel.html',
                            kernel = kernel,
-                           progress = progress,
                            cves = cves,
                            patch_status = patch_status,
                            status_ids = Status.objects(),
