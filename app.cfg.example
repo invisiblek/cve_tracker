@@ -8,9 +8,9 @@ GITHUBTOKEN = 'github_token'
 # 'none' will disable authentication
 GITHUB_ORG = 'LineageOS'
 # github OAuth2 key
-GITHUB_CONSUMER_KEY = 'my_github_app_id'
+GITHUB_CLIENT_ID = 'my_github_app_id'
 # github OAuth2 secret
-GITHUB_CONSUMER_SECRET = 'my_github_app_secret'
+GITHUB_CLIENT_SECRET = 'my_github_app_secret'
 
 # used by flask to secure session info. change this to something random.
 SECRET_KEY = 'default'
