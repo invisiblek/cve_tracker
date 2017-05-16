@@ -13,7 +13,6 @@ import flask_debugtoolbar_mongo
 
 from classes import *
 from flask import Flask, abort, jsonify, redirect, render_template, request, session, url_for
-from flask_caching import Cache
 from flask_github import GitHub
 from flask_mongoengine import MongoEngine
 
@@ -36,7 +35,6 @@ with open(os.path.join(dir, devicefile)) as device_file:
     devices = json.load(device_file)
 
 db = MongoEngine(app)
-cache = Cache(app)
 github = GitHub(app)
 
 app.config['DEBUG_TB_PANELS'] = [
@@ -113,14 +111,12 @@ def error(msg = ""):
     return render_template('error.html', msg=msg)
 
 @app.route("/")
-@cache.cached(3600, unless=logged_in)
 def index():
     kernels = Kernel.objects().order_by('vendor', 'device')
     return render_template('index.html', kernels=kernels, version=version, authorized=logged_in(),
           needs_auth=app.config['GITHUB_ORG'] != 'none')
 
 @app.route("/<string:k>")
-@cache.cached(3600, unless=logged_in)
 def kernel(k):
     try:
         kernel = Kernel.objects.get(repo_name=k)
@@ -147,7 +143,6 @@ def kernel(k):
                            authorized=logged_in())
 
 @app.route("/status/<string:c>")
-@cache.cached(3600, unless=logged_in)
 def cve_status(c):
     kernels = Kernel.objects().order_by('vendor', 'device')
     cve = CVE.objects.get(cve_name=c)
@@ -319,14 +314,12 @@ def editlink():
     return jsonify({'error': errstatus})
 
 @app.route("/getlinks", methods=['POST'])
-@cache.cached(3600, unless=logged_in)
 def getlinks():
     r = request.get_json()
     c = r['cve_id'];
     return Links.objects(cve_id=c).to_json()
 
 @app.route("/getnotes", methods=['POST'])
-@cache.cached(3600, unless=logged_in)
 def getnotes():
     r = request.get_json()
     c = r['cve_id']

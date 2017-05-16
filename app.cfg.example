@@ -14,5 +14,3 @@ GITHUB_CLIENT_SECRET = 'my_github_app_secret'
 
 # used by flask to secure session info. change this to something random.
 SECRET_KEY = 'default'
-
-CACHE_TYPE = 'simple'
