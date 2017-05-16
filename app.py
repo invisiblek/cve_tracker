@@ -8,6 +8,9 @@ import sys
 
 import utils
 
+import flask_debugtoolbar
+import flask_debugtoolbar_mongo
+
 from classes import *
 from flask import Flask, abort, jsonify, redirect, render_template, request, session, url_for
 from flask_caching import Cache
@@ -35,6 +38,20 @@ with open(os.path.join(dir, devicefile)) as device_file:
 db = MongoEngine(app)
 cache = Cache(app)
 github = GitHub(app)
+
+app.config['DEBUG_TB_PANELS'] = [
+    'flask_debugtoolbar.panels.versions.VersionDebugPanel',
+    'flask_debugtoolbar.panels.timer.TimerDebugPanel',
+    'flask_debugtoolbar.panels.headers.HeaderDebugPanel',
+    'flask_debugtoolbar.panels.request_vars.RequestVarsDebugPanel',
+    'flask_debugtoolbar.panels.template.TemplateDebugPanel',
+    'flask_debugtoolbar.panels.logger.LoggingPanel',
+    'flask_debugtoolbar.panels.profiler.ProfilerDebugPanel',
+    # Add the MongoDB panel
+    'flask_debugtoolbar_mongo.panel.MongoDebugPanel',
+]
+
+toolbar = flask_debugtoolbar.DebugToolbarExtension(app)
 
 def logged_in():
     return ('github_token' in session and session['github_token']) or app.config['GITHUB_ORG'] == None
