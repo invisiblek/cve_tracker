@@ -35,7 +35,7 @@
             {% endif %}
             <div class='cvediv' id='{{ k.repo_name }}'>
               <a href='/{{ k.repo_name }}'>{{ k.device }}</a>
-              <span id='status' kernel_id={{ k.id }} cve_id={{ cve.id }} status_id={{ status_ids.get(id=patches.get(kernel=k.id).status).short_id }}></span>
+              <span id='status' kernel_id={{ k.id }} cve_id={{ cve.id }} status_id={{ statuses[patches[k.id]] }}></span>
             </div>
           {% endfor %}
           </div>

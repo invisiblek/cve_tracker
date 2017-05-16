@@ -126,11 +126,12 @@ def kernel(k):
         kernel = Kernel.objects.get(repo_name=k)
     except:
         abort(404)
-    patches = Patches.objects(kernel=kernel.id)
     cves = CVE.objects().order_by('cve_name')
+    statuses = {s.id: s.short_id for s in Status.objects()}
+    patches = {p.cve: p.status for p in Patches.objects(kernel=kernel.id)}
     patch_status = []
     for c in cves:
-      patch_status.append(Status.objects.get(id=patches.get(cve=c.id).status).short_id)
+      patch_status.append(statuses[patches[c.id]])
 
     if k in devices:
         devs = devices[k]
@@ -150,11 +151,14 @@ def kernel(k):
 def cve_status(c):
     kernels = Kernel.objects().order_by('vendor', 'device')
     cve = CVE.objects.get(cve_name=c)
+    statuses = {s.id: s.short_id for s in Status.objects()}
+    patches = {p.kernel: p.status for p in Patches.objects(cve=cve.id)}
     return render_template('status.html',
                            cve = cve,
                            kernels = kernels,
-                           patches = Patches.objects(cve=cve.id),
+                           patches = patches,
                            status_ids = Status.objects(),
+                           statuses = statuses,
                            authorized=logged_in())
 
 @app.route("/update", methods=['POST'])
@@ -328,4 +332,7 @@ def getnotes():
     c = r['cve_id']
     return CVE.objects(id=c).to_json()
 
+###
+# cache helper functions
+###
 
