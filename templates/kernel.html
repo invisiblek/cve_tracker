@@ -63,16 +63,16 @@
         <div id='progressbar' value='{{ kernel.progress }}'></div>
       </div>
       <div style="clear: both">
+        {% set counter = [0] %}
         {% for column in cves | slice(3) %}
-        {% set num_per_col = (cves|length / 3)|round %}
         {% set cveloop = loop %}
           <div class='four columns'>
             {% for c in column %}
-            {% set index = (cveloop.index0 * num_per_col + loop.index0)|int %}
               <div class='cvediv' id='{{ c.cve_name }}'>
                 <a href="javascript:void(0)" onclick='openLinks("{{ c.cve_name }}", "{{ c.id }}")'>{{ c.cve_name }}</a>
-                <span id='status' onclick='update(this)' kernel_id={{ kernel.id }} cve_id={{ c.id }} status_id={{ patch_status[index] }}></span>
+                <span id='status' onclick='update(this)' kernel_id={{ kernel.id }} cve_id={{ c.id }} status_id={{ patch_status[counter[0]] }}></span>
               </div>
+            {% if counter.append(counter.pop() + 1) %} {% endif %}
             {% endfor %}
           </div>
         {% endfor %}
