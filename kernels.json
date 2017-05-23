@@ -86,7 +86,8 @@
     ],
     "android_kernel_htc_msm8952": [
         "android_device_htc_hiaeuhl",
-        "android_device_htc_hiaeul"
+        "android_device_htc_hiaeul",
+        "android_device_htc_hiaewhl"
     ],
     "android_kernel_htc_msm8960": [
         "android_device_htc_evita",
