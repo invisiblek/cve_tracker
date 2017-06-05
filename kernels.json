@@ -82,6 +82,7 @@
         "android_device_google_shamrock"
     ],
     "android_kernel_htc_flounder": [
+        "android_device_htc_flounder",
         "android_device_htc_flounder_lte"
     ],
     "android_kernel_htc_m7": [
