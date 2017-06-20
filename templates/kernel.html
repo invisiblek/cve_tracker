@@ -75,8 +75,8 @@
                 <div class="subtitle">
                     <span>used by </span>
                     {% for d in devices -%}
-                        <a class="device" href="https://github.com/LineageOS/{{ d }}" target="_blank" title="View on GitHub">
-                            {{ d }}{% if not loop.last %},{% endif %}
+                        <a class="device" href="https://github.com/LineageOS/{{ d.repo }}" target="_blank" title="View on GitHub">
+                            {{ d.name }}{% if not loop.last %},{% endif %}
                         </a>
                     {%- endfor %}
                 </div>

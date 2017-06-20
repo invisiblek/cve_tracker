@@ -180,9 +180,12 @@ def kernel(k):
 
     if k in devices:
         devs = []
-        for device in devices[k]:
-            v, d = utils.getVendorNameFromRepo(device)
-            devs.append(d)
+        for repo in devices[k]:
+            v, d = utils.getVendorNameFromRepo(repo)
+            devs.append({
+            'name': d,
+            'repo': repo
+            })
     else:
         devs = []
 
